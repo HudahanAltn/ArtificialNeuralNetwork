@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Windows.h>
+#include "Resource.h"
+#include <iostream>
 namespace ArtificialNeuralNetwork {
 
 	using namespace System;
@@ -42,6 +45,8 @@ namespace ArtificialNeuralNetwork {
 	private: System::Windows::Forms::TreeView^ treeView1;
 	private: System::Windows::Forms::Label^ label1;
 	private: System::Windows::Forms::Label^ label2;
+	private: System::Windows::Forms::NumericUpDown^ numericUpDown1;
+	private: System::Windows::Forms::NumericUpDown^ numericUpDown2;
 
 	private:
 		/// <summary>
@@ -63,8 +68,12 @@ namespace ArtificialNeuralNetwork {
 			this->treeView1 = (gcnew System::Windows::Forms::TreeView());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
+			this->numericUpDown2 = (gcnew System::Windows::Forms::NumericUpDown());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->menuStrip1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown2))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// pictureBox1
@@ -76,6 +85,7 @@ namespace ArtificialNeuralNetwork {
 			this->pictureBox1->TabIndex = 0;
 			this->pictureBox1->TabStop = false;
 			this->pictureBox1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::pictureBox1_Paint);
+			this->pictureBox1->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &MyForm::pictureBox1_MouseClick);
 			// 
 			// menuStrip1
 			// 
@@ -102,6 +112,7 @@ namespace ArtificialNeuralNetwork {
 			// 
 			// treeView1
 			// 
+			this->treeView1->LineColor = System::Drawing::Color::Empty;
 			this->treeView1->Location = System::Drawing::Point(0, 0);
 			this->treeView1->Name = L"treeView1";
 			this->treeView1->Size = System::Drawing::Size(121, 97);
@@ -136,12 +147,34 @@ namespace ArtificialNeuralNetwork {
 			this->label2->TabIndex = 3;
 			this->label2->Text = L"Instance Number";
 			// 
+			// numericUpDown1
+			// 
+			this->numericUpDown1->Location = System::Drawing::Point(799, 50);
+			this->numericUpDown1->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
+			this->numericUpDown1->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2, 0, 0, 0 });
+			this->numericUpDown1->Name = L"numericUpDown1";
+			this->numericUpDown1->Size = System::Drawing::Size(120, 22);
+			this->numericUpDown1->TabIndex = 4;
+			this->numericUpDown1->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2, 0, 0, 0 });
+			// 
+			// numericUpDown2
+			// 
+			this->numericUpDown2->Location = System::Drawing::Point(799, 92);
+			this->numericUpDown2->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
+			this->numericUpDown2->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1, 0, 0, 0 });
+			this->numericUpDown2->Name = L"numericUpDown2";
+			this->numericUpDown2->Size = System::Drawing::Size(120, 22);
+			this->numericUpDown2->TabIndex = 5;
+			this->numericUpDown2->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1, 0, 0, 0 });
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FloralWhite;
 			this->ClientSize = System::Drawing::Size(1303, 603);
+			this->Controls->Add(this->numericUpDown2);
+			this->Controls->Add(this->numericUpDown1);
 			this->Controls->Add(this->label2);
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->pictureBox1);
@@ -152,6 +185,8 @@ namespace ArtificialNeuralNetwork {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown2))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -159,8 +194,8 @@ namespace ArtificialNeuralNetwork {
 #pragma endregion
 	private: System::Void pictureBox1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 
-		//picture box eksen doðrularý
-		Pen^ pen = gcnew Pen(Color::Gray, 3.0f);
+		//picture box eksen doðrularý çizen fonksiyon
+		Pen^ pen = gcnew Pen(Color::Gray, 2.5f);
 		int center_width, center_height;
 		center_width = (int)(pictureBox1->Width / 2);
 		center_height = (int)(pictureBox1->Height / 2);
@@ -168,5 +203,16 @@ namespace ArtificialNeuralNetwork {
 		e->Graphics->DrawLine(pen, 0, center_height, pictureBox1->Width, center_height);
 	}
 	
+    private: System::Void pictureBox1_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
+	    //picturebox üzerine mouse ile týklanýnca tetiklenen fonksiyon.Burada týklanan noktalarý alacaðýz.
+
+		Decimal numericUpDown1Value = this->numericUpDown1->Value;
+		Decimal numericUpDown2Value = this->numericUpDown2->Value;
+
+		MessageBox::Show("Numeric 1 degeri:" + numericUpDown1->Value.ToString() + "  Numeric 2 deðeri:" + numericUpDown2->Value.ToString());
+	
+		
+    }
+
 };
 }
