@@ -1,8 +1,11 @@
 #pragma once
 
 #include <Windows.h>
-#include "Resource.h"
 #include <iostream>
+#include <time.h>
+#include "Resource.h"
+#include "Process.h"
+
 namespace ArtificialNeuralNetwork {
 
 	using namespace System;
@@ -27,20 +30,21 @@ namespace ArtificialNeuralNetwork {
 			//
 			label3->Text = "";
 			label4->Text = "";
+			label5->Text = "";
+			label6->Text = "";
+			label7->Text = "";
 			pen = gcnew Pen(Color::Black, 3.0f);
 			instanceValue = classValue = totalInstanceSize = constTotalInstanceSize = classId = 0;
+			
 		}
 
 		Int32 instanceValue;//her sýnýfa ait örnek sayýsý
 		Pen^ pen;//sýnýftaki örneklerin picturebox'ta görünmesini saðlayacak olan kalem nesnesi.
 		Int32 classValue;//sýnýf sayýsý
-	private: System::Windows::Forms::Label^ label3;
-	public:
-	private: System::Windows::Forms::Label^ label4;
-		   Instance* instances;// ekrana týklanan noktalarý tutacak yani örneklerin dizisi.
+		Instance* instances;// ekrana týklanan noktalarý tutacak yani örneklerin dizisi.
 		int totalInstanceSize, constTotalInstanceSize;//toplam örnek sayýsý classValue*instanceValue.
 		int classId;//her sýnýfýn eþþiz ýd'si olmalýdýr.
-
+		double* weight;
 	
 	protected:
 		/// <summary>
@@ -60,11 +64,16 @@ namespace ArtificialNeuralNetwork {
 	private: System::Windows::Forms::TreeView^ treeView1;
 	private: System::Windows::Forms::Label^ label1;
 	private: System::Windows::Forms::Label^ label2;
+	private: System::Windows::Forms::Label^ label3;
+	private: System::Windows::Forms::Label^ label4;
+	private: System::Windows::Forms::Label^ label5;
+	private: System::Windows::Forms::Label^ label6;
+	private: System::Windows::Forms::Label^ label7;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown1;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown2;
 	private: System::Windows::Forms::Button^ button1;
 	private: System::Windows::Forms::Button^ button2;
-
+	private: System::Windows::Forms::ToolStripMenuItem^ randomizeToolStripMenuItem;
 	private:
 		/// <summary>
 		///Gerekli tasarýmcý deðiþkeni.
@@ -82,6 +91,7 @@ namespace ArtificialNeuralNetwork {
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->processToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->ýnitializationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->randomizeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->treeView1 = (gcnew System::Windows::Forms::TreeView());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->label2 = (gcnew System::Windows::Forms::Label());
@@ -91,6 +101,9 @@ namespace ArtificialNeuralNetwork {
 			this->button2 = (gcnew System::Windows::Forms::Button());
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->label4 = (gcnew System::Windows::Forms::Label());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->label6 = (gcnew System::Windows::Forms::Label());
+			this->label7 = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
@@ -127,9 +140,17 @@ namespace ArtificialNeuralNetwork {
 			// 
 			// ýnitializationToolStripMenuItem
 			// 
+			this->ýnitializationToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->randomizeToolStripMenuItem });
 			this->ýnitializationToolStripMenuItem->Name = L"ýnitializationToolStripMenuItem";
-			this->ýnitializationToolStripMenuItem->Size = System::Drawing::Size(174, 26);
+			this->ýnitializationToolStripMenuItem->Size = System::Drawing::Size(224, 26);
 			this->ýnitializationToolStripMenuItem->Text = L"Initialization";
+			// 
+			// randomizeToolStripMenuItem
+			// 
+			this->randomizeToolStripMenuItem->Name = L"randomizeToolStripMenuItem";
+			this->randomizeToolStripMenuItem->Size = System::Drawing::Size(224, 26);
+			this->randomizeToolStripMenuItem->Text = L"Randomize";
+			this->randomizeToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::randomizeToolStripMenuItem_Click);
 			// 
 			// treeView1
 			// 
@@ -219,18 +240,45 @@ namespace ArtificialNeuralNetwork {
 			this->label3->AutoSize = true;
 			this->label3->Location = System::Drawing::Point(606, 248);
 			this->label3->Name = L"label3";
-			this->label3->Size = System::Drawing::Size(46, 17);
+			this->label3->Size = System::Drawing::Size(100, 17);
 			this->label3->TabIndex = 8;
-			this->label3->Text = L"label3";
+			this->label3->Text = L"x1 = 0    x2 = 0";
 			// 
 			// label4
 			// 
 			this->label4->AutoSize = true;
 			this->label4->Location = System::Drawing::Point(608, 279);
 			this->label4->Name = L"label4";
-			this->label4->Size = System::Drawing::Size(46, 17);
+			this->label4->Size = System::Drawing::Size(287, 17);
 			this->label4->TabIndex = 9;
-			this->label4->Text = L"label4";
+			this->label4->Text = L"Eklenebilir örnek adedi: 0  Class Id: Unkown ";
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Location = System::Drawing::Point(990, 50);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(46, 17);
+			this->label5->TabIndex = 10;
+			this->label5->Text = L"label5";
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Location = System::Drawing::Point(990, 77);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(46, 17);
+			this->label6->TabIndex = 11;
+			this->label6->Text = L"label6";
+			// 
+			// label7
+			// 
+			this->label7->AutoSize = true;
+			this->label7->Location = System::Drawing::Point(990, 98);
+			this->label7->Name = L"label7";
+			this->label7->Size = System::Drawing::Size(46, 17);
+			this->label7->TabIndex = 12;
+			this->label7->Text = L"label7";
 			// 
 			// MyForm
 			// 
@@ -238,6 +286,9 @@ namespace ArtificialNeuralNetwork {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FloralWhite;
 			this->ClientSize = System::Drawing::Size(1303, 603);
+			this->Controls->Add(this->label7);
+			this->Controls->Add(this->label6);
+			this->Controls->Add(this->label5);
 			this->Controls->Add(this->label4);
 			this->Controls->Add(this->label3);
 			this->Controls->Add(this->button2);
@@ -298,8 +349,8 @@ namespace ArtificialNeuralNetwork {
 				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x - 5, temp_y, temp_x + 5, temp_y);
 				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x, temp_y - 5, temp_x, temp_y + 5);
 
-				label3->Text = "x1 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x1) + "  x2 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x2);
-				label4->Text = "Eklenebilir örnek adedi: " + Convert::ToString(totalInstanceSize - 1) + "  Class Id: " + Convert::ToString(classId);
+				label3->Text = "x1 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x1) + "    x2 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x2);
+				label4->Text = "Eklenebilir örnek adedi: " + Convert::ToString(totalInstanceSize - 1) + " Class Id: " + Convert::ToString(classId);
 				instanceValue--;
 				totalInstanceSize--;
 			}
@@ -336,6 +387,9 @@ namespace ArtificialNeuralNetwork {
 		classId = 1;//sýnýf id'si 1 den baþlayacak
 		instances = new Instance[totalInstanceSize];//bellekte toplam örnek sayýsý kadar alan ayrýlacak.
 		
+		label3->Text = "x1 = 0  "  + "  x2 = 0" ;
+		label4->Text = "Eklenebilir örnek adedi: 0 " + " Class Id: Unkown" ;
+
 		MessageBox::Show("PictureBox üzerindeki koordinat alanlarýna örnekleri týklayarak yerleþtiriniz.");
 
 
@@ -361,6 +415,31 @@ namespace ArtificialNeuralNetwork {
 		
 	
 		
+	}
+	private: System::Void randomizeToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		//rastgele doðru çizimi
+
+		Pen^ pen = gcnew Pen(Color::Green, 3.0f);
+
+		int min_x, max_x, min_y, max_y;
+		
+		int Dim = 2;
+		weight = new double[Dim + 1];
+		srand(time(0));
+		for (int i = 0; i < 3; i++) {
+		weight[i] = ((double)rand() / (RAND_MAX));
+		}
+
+		label5->Text = "w[0]: " + System::Convert::ToString(weight[0]);
+		label6->Text = "w[1]: " + System::Convert::ToString(weight[1]);
+		label7->Text = "w[2]: " + System::Convert::ToString(weight[2]);
+
+		min_x = (this->pictureBox1->Width) / -2;
+		min_y = YPoint(min_x, weight);
+		max_x = (this->pictureBox1->Width) / 2;
+		max_y = YPoint(max_x, weight);
+		pictureBox1->CreateGraphics()->DrawLine(pen, (pictureBox1->Width / 2) + min_x, (pictureBox1->Height / 2) - min_y, (pictureBox1->Width / 2) + max_x, (pictureBox1->Height / 2) - max_y);
+
 	}
 };
 }
