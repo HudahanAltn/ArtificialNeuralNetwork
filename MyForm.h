@@ -18,27 +18,42 @@ namespace ArtificialNeuralNetwork {
 	public ref class MyForm : public System::Windows::Forms::Form
 	{
 	public:
+
 		MyForm(void)
 		{
 			InitializeComponent();
 			//
 			//TODO: Oluþturucu kodunu buraya ekle
 			//
+			label3->Text = "";
+			label4->Text = "";
+			pen = gcnew Pen(Color::Black, 3.0f);
+			instanceValue = classValue = totalInstanceSize = constTotalInstanceSize = classId = 0;
 		}
 
+		Int32 instanceValue;//her sýnýfa ait örnek sayýsý
+		Pen^ pen;//sýnýftaki örneklerin picturebox'ta görünmesini saðlayacak olan kalem nesnesi.
+		Int32 classValue;//sýnýf sayýsý
+	private: System::Windows::Forms::Label^ label3;
+	public:
+	private: System::Windows::Forms::Label^ label4;
+		   Instance* instances;// ekrana týklanan noktalarý tutacak yani örneklerin dizisi.
+		int totalInstanceSize, constTotalInstanceSize;//toplam örnek sayýsý classValue*instanceValue.
+		int classId;//her sýnýfýn eþþiz ýd'si olmalýdýr.
+
+	
 	protected:
 		/// <summary>
 		///Kullanýlan tüm kaynaklarý temizleyin.
 		/// </summary>
-		~MyForm()
-		{
+		~MyForm(){
 			if (components)
 			{
 				delete components;
 			}
 		}
+
 	private: System::Windows::Forms::PictureBox^ pictureBox1;
-	protected:
 	private: System::Windows::Forms::MenuStrip^ menuStrip1;
 	private: System::Windows::Forms::ToolStripMenuItem^ processToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ ýnitializationToolStripMenuItem;
@@ -47,6 +62,8 @@ namespace ArtificialNeuralNetwork {
 	private: System::Windows::Forms::Label^ label2;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown1;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown2;
+	private: System::Windows::Forms::Button^ button1;
+	private: System::Windows::Forms::Button^ button2;
 
 	private:
 		/// <summary>
@@ -70,6 +87,10 @@ namespace ArtificialNeuralNetwork {
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->numericUpDown1 = (gcnew System::Windows::Forms::NumericUpDown());
 			this->numericUpDown2 = (gcnew System::Windows::Forms::NumericUpDown());
+			this->button1 = (gcnew System::Windows::Forms::Button());
+			this->button2 = (gcnew System::Windows::Forms::Button());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->label4 = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
@@ -161,11 +182,55 @@ namespace ArtificialNeuralNetwork {
 			// 
 			this->numericUpDown2->Location = System::Drawing::Point(799, 92);
 			this->numericUpDown2->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
-			this->numericUpDown2->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1, 0, 0, 0 });
+			this->numericUpDown2->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2, 0, 0, 0 });
 			this->numericUpDown2->Name = L"numericUpDown2";
 			this->numericUpDown2->Size = System::Drawing::Size(120, 22);
 			this->numericUpDown2->TabIndex = 5;
-			this->numericUpDown2->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1, 0, 0, 0 });
+			this->numericUpDown2->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2, 0, 0, 0 });
+			// 
+			// button1
+			// 
+			this->button1->BackColor = System::Drawing::Color::Khaki;
+			this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->button1->Location = System::Drawing::Point(608, 136);
+			this->button1->Name = L"button1";
+			this->button1->Size = System::Drawing::Size(311, 36);
+			this->button1->TabIndex = 6;
+			this->button1->Text = L"Seçimi Onayla";
+			this->button1->UseVisualStyleBackColor = false;
+			this->button1->Click += gcnew System::EventHandler(this, &MyForm::button1_Click);
+			// 
+			// button2
+			// 
+			this->button2->BackColor = System::Drawing::Color::Khaki;
+			this->button2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->button2->Location = System::Drawing::Point(609, 178);
+			this->button2->Name = L"button2";
+			this->button2->Size = System::Drawing::Size(310, 36);
+			this->button2->TabIndex = 7;
+			this->button2->Text = L"Tekrar Seçim Yap";
+			this->button2->UseVisualStyleBackColor = false;
+			this->button2->Click += gcnew System::EventHandler(this, &MyForm::button2_Click);
+			// 
+			// label3
+			// 
+			this->label3->AutoSize = true;
+			this->label3->Location = System::Drawing::Point(606, 248);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(46, 17);
+			this->label3->TabIndex = 8;
+			this->label3->Text = L"label3";
+			// 
+			// label4
+			// 
+			this->label4->AutoSize = true;
+			this->label4->Location = System::Drawing::Point(608, 279);
+			this->label4->Name = L"label4";
+			this->label4->Size = System::Drawing::Size(46, 17);
+			this->label4->TabIndex = 9;
+			this->label4->Text = L"label4";
 			// 
 			// MyForm
 			// 
@@ -173,6 +238,10 @@ namespace ArtificialNeuralNetwork {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FloralWhite;
 			this->ClientSize = System::Drawing::Size(1303, 603);
+			this->Controls->Add(this->label4);
+			this->Controls->Add(this->label3);
+			this->Controls->Add(this->button2);
+			this->Controls->Add(this->button1);
 			this->Controls->Add(this->numericUpDown2);
 			this->Controls->Add(this->numericUpDown1);
 			this->Controls->Add(this->label2);
@@ -204,15 +273,94 @@ namespace ArtificialNeuralNetwork {
 	}
 	
     private: System::Void pictureBox1_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
-	    //picturebox üzerine mouse ile týklanýnca tetiklenen fonksiyon.Burada týklanan noktalarý alacaðýz.
-
-		Decimal numericUpDown1Value = this->numericUpDown1->Value;
-		Decimal numericUpDown2Value = this->numericUpDown2->Value;
-
-		MessageBox::Show("Numeric 1 degeri:" + numericUpDown1->Value.ToString() + "  Numeric 2 deðeri:" + numericUpDown2->Value.ToString());
-	
+	    /*picturebox üzerine mouse ile týklanýnca tetiklenen fonksiyon.Burada kullanýcý ekrana týklayýnca picturebox'ta hem noktalarý
+		gösterip hemde konum deðerlerini alacaðýz.*/
 		
+		if (classValue > 0 ){
+			if (instanceValue > 0) {
+				
+				int temp_x, temp_y;
+				double x1, x2; //x1 = width, x2 = height
+				//mouse ile týklayýnca ekranýn konum deðerleri temp_x ve temp_y deðiþkenlerine atanýr.
+				temp_x = (Convert::ToInt32(e->X));
+				temp_y = (Convert::ToInt32(e->Y));
+
+				// Noktalarin ana eksenin merkezine gore tasinmasi.x1 yatay eksen, x2 dikey eksen.
+				x1 = (double)(temp_x - (pictureBox1->Width >> 1));
+				x2 = (double)((pictureBox1->Height >> 1) - temp_y);
+
+				//her týklamada örnekler diziye geçirilir.
+				instances[constTotalInstanceSize - totalInstanceSize].id = classId;
+				instances[constTotalInstanceSize - totalInstanceSize].x1 = x1;
+				instances[constTotalInstanceSize - totalInstanceSize].x2 = x2;
+
+				/*MessageBox::Show("Class degeri:" + classValue.ToString() + "  instance deðeri:" + instanceValue.ToString());*/
+				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x - 5, temp_y, temp_x + 5, temp_y);
+				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x, temp_y - 5, temp_x, temp_y + 5);
+
+				label3->Text = "x1 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x1) + "  x2 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x2);
+				label4->Text = "Eklenebilir örnek adedi: " + Convert::ToString(totalInstanceSize - 1) + "  Class Id: " + Convert::ToString(classId);
+				instanceValue--;
+				totalInstanceSize--;
+			}
+			else {
+				classValue--;
+				classId++;
+				instanceValue = Decimal::ToInt32(numericUpDown2->Value);
+				System::Random^ rastgele = gcnew System::Random();
+				pen = gcnew Pen(System::Drawing::Color::FromArgb(rastgele->Next(256), rastgele->Next(256), rastgele->Next(256)), 3.0f);
+
+			}
+
+		}
+		else {
+			MessageBox::Show("Tüm Sýnýf ve Örnekler eklenmiþtir.");
+		}
+
     }
 
+	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+		//kullanýcý girilecek sýnýf sayýsý ve her sýnýfa ait örnek sayýsýný seçer ve onayla butonuna týklar.
+
+		//sýnýf sayýsý ve her sýnýfa ait örnek sayýsý alýnýr.
+		classValue = Decimal::ToInt32(numericUpDown1->Value);
+		instanceValue = Decimal::ToInt32(numericUpDown2->Value);
+
+		//týklama boyunca bu sayýlarýn deðiþmesini engellemek için nesneler devre dýþý býrakýlýr.
+		numericUpDown1->Enabled = false;
+		numericUpDown2->Enabled = false;
+
+		totalInstanceSize = classValue * instanceValue;//toplam örnek sayýsý
+		constTotalInstanceSize = classValue * instanceValue;//toplam örnek sayýsý ama bu sabit kalacak
+
+		classId = 1;//sýnýf id'si 1 den baþlayacak
+		instances = new Instance[totalInstanceSize];//bellekte toplam örnek sayýsý kadar alan ayrýlacak.
+		
+		MessageBox::Show("PictureBox üzerindeki koordinat alanlarýna örnekleri týklayarak yerleþtiriniz.");
+
+
+	}
+
+	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
+		
+	/*	numericUpDown1->Enabled = true;
+		numericUpDown2->Enabled = true;
+
+		classValue = 2;
+		instanceValue = 2;
+
+		pen = gcnew Pen(Color::Black, 3.0f);
+		instanceValue = classValue = totalInstanceSize = constTotalInstanceSize = classId = 0;
+		delete* instances*/
+
+		MessageBox::Show("class" + instances[0].id + "  x1:" + instances[0].x1 + " x2:" + instances[0].x2 + "\n" +
+			"class" + instances[1].id + "  x1:" + instances[1].x1 + " x2:" + instances[1].x2 + "\n" +
+			"class" + instances[2].id + "  x1:" + instances[2].x1 + " x2:" + instances[2].x2 + "\n" +
+			"class" + instances[3].id + "  x1:" + instances[3].x1 + " x2:" + instances[3].x2 + "\n" +
+			"class" + instances[4].id + "  x1:" + instances[4].x1 + " x2:" + instances[4].x2 + "\n");
+		
+	
+		
+	}
 };
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-struct Instances {
+struct Instance {
 
 	int id; // örneðin id'si onun hangi sýnýfa ait olduðunu bize söyler
 	double x1; // x koordinat deðeri
