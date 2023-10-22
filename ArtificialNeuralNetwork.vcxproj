@@ -121,12 +121,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyForm.cpp" />
+    <ClCompile Include="Perceptron.cpp" />
     <ClCompile Include="Process.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="Perceptron.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
