@@ -1,10 +1,6 @@
-#include "Perceptron.h"
+#include "Learning.h"
 #include "Process.h"
 
-
-template <typename T> int sgn(T val) {
-	return (T(0) < val) - (val < T(0));
-}
 
 //
 //       w1
@@ -63,6 +59,6 @@ bool perceptronLearning(Instance instance, double* weights, double c) {//bu fonk
 		return false;//aðýrlýklar eþit deðil ise hata = desiredOutput - output
 	}
 	else {//eþit ise aðýrlýklar güncellenmez.
-		return true; //aðýrlýklar eþit deðilse hata = 0
+		return true; //aðýrlýklar eþit  hata = 0
 	}
 }

@@ -120,15 +120,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Delta.cpp" />
     <ClCompile Include="MyForm.cpp" />
+    <ClCompile Include="Normalization.cpp" />
     <ClCompile Include="Perceptron.cpp" />
     <ClCompile Include="Process.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Learning.h" />
     <ClInclude Include="MyForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
-    <ClInclude Include="Perceptron.h" />
+    <ClInclude Include="Normalization.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>

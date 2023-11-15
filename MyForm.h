@@ -5,8 +5,8 @@
 #include <time.h>
 #include "Resource.h"
 #include "Process.h"
-#include "Perceptron.h"
-
+#include "Learning.h"
+#include "Normalization.h"
 namespace ArtificialNeuralNetwork {
 
 	using namespace System;
@@ -41,9 +41,14 @@ namespace ArtificialNeuralNetwork {
 		}
 
 		Int32 instanceValue;//her sýnýfa ait örnek sayýsý
-	private: System::Windows::Forms::Label^ label8;
 	public:
 		Pen^ pen;//sýnýftaki örneklerin picturebox'ta görünmesini saðlayacak olan kalem nesnesi.
+	private: System::Windows::Forms::Label^ label10;
+	public:
+	private: System::Windows::Forms::Label^ label11;
+	private: System::Windows::Forms::TextBox^ textBox1;
+	private: System::Windows::Forms::TextBox^ textBox2;
+	public:
 		Int32 classValue;//sýnýf sayýsý
 		Instance* instances;// ekrana týklanan noktalarý tutacak yani örneklerin dizisi.
 		int totalInstanceSize, constTotalInstanceSize;//toplam örnek sayýsý classValue*instanceValue.
@@ -73,6 +78,8 @@ namespace ArtificialNeuralNetwork {
 	private: System::Windows::Forms::Label^ label5;
 	private: System::Windows::Forms::Label^ label6;
 	private: System::Windows::Forms::Label^ label7;
+	private: System::Windows::Forms::Label^ label9;
+	private: System::Windows::Forms::Label^ label8;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown1;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown2;
 	private: System::Windows::Forms::Button^ button1;
@@ -82,11 +89,12 @@ namespace ArtificialNeuralNetwork {
 	private: System::Windows::Forms::ToolStripMenuItem^ trainingToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ perceptronToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ deltaToolStripMenuItem;
-	private:
-		/// <summary>
-		///Gerekli tasarýmcý deðiþkeni.
-		/// </summary>
-		System::ComponentModel::Container ^components;
+	private:System::ComponentModel::Container ^components;
+
+
+
+
+
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -117,6 +125,11 @@ namespace ArtificialNeuralNetwork {
 			this->label6 = (gcnew System::Windows::Forms::Label());
 			this->label7 = (gcnew System::Windows::Forms::Label());
 			this->label8 = (gcnew System::Windows::Forms::Label());
+			this->label9 = (gcnew System::Windows::Forms::Label());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
+			this->label10 = (gcnew System::Windows::Forms::Label());
+			this->label11 = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
@@ -149,7 +162,7 @@ namespace ArtificialNeuralNetwork {
 			// 
 			this->processToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->ýnitializationToolStripMenuItem });
 			this->processToolStripMenuItem->Name = L"processToolStripMenuItem";
-			this->processToolStripMenuItem->Size = System::Drawing::Size(72, 26);
+			this->processToolStripMenuItem->Size = System::Drawing::Size(72, 24);
 			this->processToolStripMenuItem->Text = L"Process";
 			// 
 			// ýnitializationToolStripMenuItem
@@ -337,12 +350,60 @@ namespace ArtificialNeuralNetwork {
 			this->label8->TabIndex = 13;
 			this->label8->Text = L"Total Cycle Count = 0";
 			// 
+			// label9
+			// 
+			this->label9->AutoSize = true;
+			this->label9->Location = System::Drawing::Point(747, 350);
+			this->label9->Name = L"label9";
+			this->label9->Size = System::Drawing::Size(64, 17);
+			this->label9->TabIndex = 14;
+			this->label9->Text = L"Error = 0";
+			// 
+			// textBox1
+			// 
+			this->textBox1->Location = System::Drawing::Point(747, 410);
+			this->textBox1->Multiline = true;
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(217, 181);
+			this->textBox1->TabIndex = 15;
+			// 
+			// textBox2
+			// 
+			this->textBox2->Location = System::Drawing::Point(1021, 410);
+			this->textBox2->Multiline = true;
+			this->textBox2->Name = L"textBox2";
+			this->textBox2->Size = System::Drawing::Size(215, 181);
+			this->textBox2->TabIndex = 16;
+			// 
+			// label10
+			// 
+			this->label10->AutoSize = true;
+			this->label10->Location = System::Drawing::Point(744, 386);
+			this->label10->Name = L"label10";
+			this->label10->Size = System::Drawing::Size(63, 17);
+			this->label10->TabIndex = 17;
+			this->label10->Text = L"Örnekler";
+			// 
+			// label11
+			// 
+			this->label11->AutoSize = true;
+			this->label11->Location = System::Drawing::Point(1021, 386);
+			this->label11->Name = L"label11";
+			this->label11->Size = System::Drawing::Size(130, 17);
+			this->label11->TabIndex = 18;
+			this->label11->Text = L"Normalize Örnekler";
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FloralWhite;
 			this->ClientSize = System::Drawing::Size(1303, 603);
+			this->Controls->Add(this->label11);
+			this->Controls->Add(this->label10);
+			this->Controls->Add(this->textBox2);
+			this->Controls->Add(this->textBox1);
+			this->Controls->Add(this->label9);
 			this->Controls->Add(this->label8);
 			this->Controls->Add(this->label7);
 			this->Controls->Add(this->label6);
@@ -409,6 +470,7 @@ namespace ArtificialNeuralNetwork {
 
 				label3->Text = "x1 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x1) + "    x2 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x2);
 				label4->Text = "Eklenebilir örnek adedi: " + Convert::ToString(totalInstanceSize - 1) + " Class Id: " + Convert::ToString(classId);
+				textBox1->Text += "Id: " + Convert::ToString(classId) + "   x1 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x1) + "    x2 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x2 + "\r\n");
 				instanceValue--;
 				totalInstanceSize--;
 			}
@@ -472,6 +534,7 @@ namespace ArtificialNeuralNetwork {
 		label7->Text = "w[2]: 0 " ;
 		
 	}
+
 	private: System::Void randomizeToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		//rastgele doðru çizimi
 
@@ -499,6 +562,7 @@ namespace ArtificialNeuralNetwork {
 	}
 	private: System::Void exitToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		//exit form
+		exit(-1);
 	}
 
 
@@ -550,7 +614,7 @@ namespace ArtificialNeuralNetwork {
 
 		int min_x, max_x, min_y, max_y;
 
-		int cycle = 10000;
+		long int cycle = 10000000;
 		bool allCyclesDone;
 		int totalCycleCount = 0;
 		for (int i = 0; i < cycle; i++) {
@@ -591,6 +655,102 @@ namespace ArtificialNeuralNetwork {
 	}
 	private: System::Void deltaToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		//delta learning
+
+		Pen^ pen = gcnew Pen(Color::Purple, 3.0f);
+
+		/*for (int i = 0; i < constTotalInstanceSize; i++) {
+
+			instances[i] = Normalization(instances[i]);
+		}*/
+	
+
+		double totalX = 0.0;
+		double totalY = 0.0;
+
+		for (int i = 0; i < constTotalInstanceSize; i++) {
+			totalX += instances[i].x1;
+			totalY += instances[i].x2;
+		}
+
+		double mean_X = totalX / constTotalInstanceSize;
+		double mean_Y = totalY / constTotalInstanceSize;
+
+		
+		double totalX2 = 0.0;
+		double totalY2 = 0.0;
+		for (int i = 0; i < constTotalInstanceSize; i++) {
+			totalX2 += pow(instances[i].x1 - mean_X, 2);
+			totalY2 += pow(instances[i].x2 - mean_Y, 2);
+		}
+
+		double standartDev_X = sqrt(totalX2 / (constTotalInstanceSize-1));
+		double standartDev_Y = sqrt(totalY2 / (constTotalInstanceSize - 1));
+
+		for (int i = 0; i < constTotalInstanceSize; i++) {
+
+			instances[i] = batchNormalization(instances[i],mean_X,standartDev_X,mean_Y,standartDev_Y);
+			textBox2->Text += "Id: " + Convert::ToString(instances[i].id) + "   x1 = " + Convert::ToString(instances[i].x1) + "    x2 = " + Convert::ToString(instances[i].x2 + "\r\n");
+		}
+
+
+
+	
+
+		int min_x, max_x, min_y, max_y;
+
+		long int maxCycle = 100000;
+	
+		int totalCycleCount = 0;
+
+		double error = 0.0;
+
+
+		while (true) {
+
+			error = 0.0;
+			for (int i= 0; i < constTotalInstanceSize; i++) {
+				error += deltaLearning(instances[i], weight, 0.1);
+			}
+			totalCycleCount++;
+
+			double err = (error / constTotalInstanceSize);
+			
+			
+			pictureBox1->CreateGraphics()->DrawLine(pen, (pictureBox1->Width / 2) + min_x, (pictureBox1->Height / 2) - min_y, (pictureBox1->Width / 2) + max_x, (pictureBox1->Height / 2) - max_y);
+			pictureBox1->Refresh();
+			if (err < 0.1 || totalCycleCount == maxCycle) {
+				break;
+			}
+		}
+
+
+
+		for (int i = 0; i < constTotalInstanceSize; i++) {
+
+			int x = instances[i].x1*30 + (pictureBox1->Width >> 1);
+			int y = (pictureBox1->Height >> 1) - instances[i].x2*30;
+			
+			pictureBox1->CreateGraphics()->DrawLine(pen, x - 5, y, x + 5, y);
+			pictureBox1->CreateGraphics()->DrawLine(pen, x, y - 5, x, y + 5);
+		}
+	
+		label5->Text = "w[0]: " + System::Convert::ToString(weight[0]);
+		label6->Text = "w[1]: " + System::Convert::ToString(weight[1]);
+		label7->Text = "w[2]: " + System::Convert::ToString(weight[2]);
+		label8->Text = "Total Cycle Count = " + System::Convert::ToString(totalCycleCount);
+		label9->Text = "Error = " + System::Convert::ToString(error/constTotalInstanceSize);
+
+
+		min_x = (this->pictureBox1->Width) / -2;
+		min_y = YPoint(min_x, weight);
+		max_x = (this->pictureBox1->Width) / 2;
+		max_y = YPoint(max_x, weight);
+
+		pen->Color = Color::Yellow;
+		pictureBox1->CreateGraphics()->DrawLine(pen, (pictureBox1->Width / 2) + min_x, (pictureBox1->Height / 2) - min_y, (pictureBox1->Width / 2) + max_x, (pictureBox1->Height / 2) - max_y);
+
 	}
+
 };
 }
+
