@@ -1,12 +1,14 @@
 #pragma once
 
 #include <Windows.h>
+#include <vector>
 #include <iostream>
 #include <time.h>
 #include "Resource.h"
 #include "Process.h"
 #include "Learning.h"
 #include "Normalization.h"
+
 namespace ArtificialNeuralNetwork {
 
 	using namespace System;
@@ -15,46 +17,50 @@ namespace ArtificialNeuralNetwork {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
-
+	using namespace System::Collections::Generic;
 	/// <summary>
 	/// MyForm için özet
 	/// </summary>
 	public ref class MyForm : public System::Windows::Forms::Form
 	{
 	public:
+		
 
 		MyForm(void)
 		{
 			InitializeComponent();
 			//
 			//TODO: Oluþturucu kodunu buraya ekle
+			// 
+			 numericUpDown1->Enabled = true;//ilk baþlarken sýnýf sayýsý seçilsin
+			 numericUpDown2->Enabled = false;
+			 button1->Enabled = false;
+			 button2->Enabled = false;
+			 button3->Enabled = true;
 			//
 			label3->Text = "";
 			label4->Text = "";
 			label5->Text = "";
 			label6->Text = "";
 			label7->Text = "";
-			pen = gcnew Pen(Color::Red, 3.0f);
-			instanceValue = classValue = totalInstanceSize = constTotalInstanceSize = classId = 0;
-			
+
+			pen = gcnew Pen(Color::Red, 3.0f);//örnek ilk baþta kýrmýzý renli olacak
+			classValue = classTag =  totalInstanceSize = constTotalInstanceSize = classId = choosenError = choosenCycle = 0;
+			instances2 = gcnew List<Instance>();
 			
 		}
 
-		Int32 instanceValue;//her sýnýfa ait örnek sayýsý
 	public:
 		Pen^ pen;//sýnýftaki örneklerin picturebox'ta görünmesini saðlayacak olan kalem nesnesi.
-	private: System::Windows::Forms::Label^ label10;
-	public:
-	private: System::Windows::Forms::Label^ label11;
-	private: System::Windows::Forms::TextBox^ textBox1;
-	private: System::Windows::Forms::TextBox^ textBox2;
-	public:
 		Int32 classValue;//sýnýf sayýsý
-		Instance* instances;// ekrana týklanan noktalarý tutacak yani örneklerin dizisi.
-		int totalInstanceSize, constTotalInstanceSize;//toplam örnek sayýsý classValue*instanceValue.
+		Int32 classTag;//sýnýfýn etiketi(1,2,3,4,5,6,7,8,9,10)
+		List<Instance>^ instances2;// ekrana týklanan noktalarý tutacak yani örneklerin listesi.
+		int totalInstanceSize, constTotalInstanceSize;//toplam örnek sayýsý 
 		int classId;//her sýnýfýn eþþiz ýd'si olmalýdýr.
 		double* weight;
 	
+		double choosenError;
+		int choosenCycle;
 	protected:
 		/// <summary>
 		///Kullanýlan tüm kaynaklarý temizleyin.
@@ -78,23 +84,28 @@ namespace ArtificialNeuralNetwork {
 	private: System::Windows::Forms::Label^ label5;
 	private: System::Windows::Forms::Label^ label6;
 	private: System::Windows::Forms::Label^ label7;
-	private: System::Windows::Forms::Label^ label9;
 	private: System::Windows::Forms::Label^ label8;
+	private: System::Windows::Forms::Label^ label9;
+	private: System::Windows::Forms::Label^ label10;
+	private: System::Windows::Forms::Label^ label11;
+	private: System::Windows::Forms::Label^ label12;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown1;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown2;
 	private: System::Windows::Forms::Button^ button1;
 	private: System::Windows::Forms::Button^ button2;
+	private: System::Windows::Forms::Button^ button3;
 	private: System::Windows::Forms::ToolStripMenuItem^ randomizeToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ exitToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ trainingToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ perceptronToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ deltaToolStripMenuItem;
 	private:System::ComponentModel::Container ^components;
-
-
-
-
-
+	private: System::Windows::Forms::TextBox^ textBox1;
+	private: System::Windows::Forms::TextBox^ textBox2;
+	private: System::Windows::Forms::ComboBox^ comboBox1;
+	private: System::Windows::Forms::ComboBox^ comboBox2;
+	private: System::Windows::Forms::Label^ label13;
+	private: System::Windows::Forms::Label^ label14;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -130,6 +141,12 @@ namespace ArtificialNeuralNetwork {
 			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
 			this->label10 = (gcnew System::Windows::Forms::Label());
 			this->label11 = (gcnew System::Windows::Forms::Label());
+			this->label12 = (gcnew System::Windows::Forms::Label());
+			this->button3 = (gcnew System::Windows::Forms::Button());
+			this->comboBox1 = (gcnew System::Windows::Forms::ComboBox());
+			this->comboBox2 = (gcnew System::Windows::Forms::ComboBox());
+			this->label13 = (gcnew System::Windows::Forms::Label());
+			this->label14 = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
@@ -232,13 +249,12 @@ namespace ArtificialNeuralNetwork {
 			this->label1->ForeColor = System::Drawing::SystemColors::ControlText;
 			this->label1->Location = System::Drawing::Point(743, 50);
 			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(154, 22);
+			this->label1->Size = System::Drawing::Size(130, 22);
 			this->label1->TabIndex = 2;
-			this->label1->Text = L"Class Number    ";
+			this->label1->Text = L"Sýnýf Sayýsý    ";
 			// 
 			// label2
 			// 
-			this->label2->AutoSize = true;
 			this->label2->BackColor = System::Drawing::Color::PaleGoldenrod;
 			this->label2->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->label2->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
@@ -246,13 +262,13 @@ namespace ArtificialNeuralNetwork {
 				static_cast<System::Byte>(162)));
 			this->label2->Location = System::Drawing::Point(743, 93);
 			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(153, 22);
+			this->label2->Size = System::Drawing::Size(130, 22);
 			this->label2->TabIndex = 3;
-			this->label2->Text = L"Instance Number";
+			this->label2->Text = L"Sýnýf Etiketi";
 			// 
 			// numericUpDown1
 			// 
-			this->numericUpDown1->Location = System::Drawing::Point(934, 50);
+			this->numericUpDown1->Location = System::Drawing::Point(910, 50);
 			this->numericUpDown1->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
 			this->numericUpDown1->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2, 0, 0, 0 });
 			this->numericUpDown1->Name = L"numericUpDown1";
@@ -262,22 +278,23 @@ namespace ArtificialNeuralNetwork {
 			// 
 			// numericUpDown2
 			// 
-			this->numericUpDown2->Location = System::Drawing::Point(934, 92);
+			this->numericUpDown2->Location = System::Drawing::Point(910, 93);
 			this->numericUpDown2->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
-			this->numericUpDown2->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2, 0, 0, 0 });
+			this->numericUpDown2->Minimum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1, 0, 0, 0 });
 			this->numericUpDown2->Name = L"numericUpDown2";
 			this->numericUpDown2->Size = System::Drawing::Size(120, 22);
 			this->numericUpDown2->TabIndex = 5;
-			this->numericUpDown2->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) { 2, 0, 0, 0 });
+			this->numericUpDown2->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1, 0, 0, 0 });
+			this->numericUpDown2->ValueChanged += gcnew System::EventHandler(this, &MyForm::numericUpDown2_ValueChanged);
 			// 
 			// button1
 			// 
 			this->button1->BackColor = System::Drawing::Color::Khaki;
 			this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(162)));
-			this->button1->Location = System::Drawing::Point(743, 136);
+			this->button1->Location = System::Drawing::Point(743, 212);
 			this->button1->Name = L"button1";
-			this->button1->Size = System::Drawing::Size(311, 36);
+			this->button1->Size = System::Drawing::Size(253, 36);
 			this->button1->TabIndex = 6;
 			this->button1->Text = L"Seçimi Onayla";
 			this->button1->UseVisualStyleBackColor = false;
@@ -288,9 +305,9 @@ namespace ArtificialNeuralNetwork {
 			this->button2->BackColor = System::Drawing::Color::Khaki;
 			this->button2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(162)));
-			this->button2->Location = System::Drawing::Point(744, 178);
+			this->button2->Location = System::Drawing::Point(1021, 212);
 			this->button2->Name = L"button2";
-			this->button2->Size = System::Drawing::Size(310, 36);
+			this->button2->Size = System::Drawing::Size(253, 36);
 			this->button2->TabIndex = 7;
 			this->button2->Text = L"Tekrar Seçim Yap";
 			this->button2->UseVisualStyleBackColor = false;
@@ -299,7 +316,7 @@ namespace ArtificialNeuralNetwork {
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Location = System::Drawing::Point(741, 248);
+			this->label3->Location = System::Drawing::Point(954, 261);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(100, 17);
 			this->label3->TabIndex = 8;
@@ -308,43 +325,43 @@ namespace ArtificialNeuralNetwork {
 			// label4
 			// 
 			this->label4->AutoSize = true;
-			this->label4->Location = System::Drawing::Point(743, 279);
+			this->label4->Location = System::Drawing::Point(740, 294);
 			this->label4->Name = L"label4";
-			this->label4->Size = System::Drawing::Size(287, 17);
+			this->label4->Size = System::Drawing::Size(278, 17);
 			this->label4->TabIndex = 9;
-			this->label4->Text = L"Eklenebilir örnek adedi: 0  Class Id: Unkown ";
+			this->label4->Text = L"Eklenen Örnek Sayýsý: 0  Class Id: Unkown ";
 			// 
 			// label5
 			// 
 			this->label5->AutoSize = true;
-			this->label5->Location = System::Drawing::Point(1125, 50);
+			this->label5->Location = System::Drawing::Point(1096, 261);
 			this->label5->Name = L"label5";
-			this->label5->Size = System::Drawing::Size(46, 17);
+			this->label5->Size = System::Drawing::Size(45, 17);
 			this->label5->TabIndex = 10;
-			this->label5->Text = L"label5";
+			this->label5->Text = L"w[0] : ";
 			// 
 			// label6
 			// 
 			this->label6->AutoSize = true;
-			this->label6->Location = System::Drawing::Point(1125, 77);
+			this->label6->Location = System::Drawing::Point(1096, 294);
 			this->label6->Name = L"label6";
-			this->label6->Size = System::Drawing::Size(46, 17);
+			this->label6->Size = System::Drawing::Size(41, 17);
 			this->label6->TabIndex = 11;
-			this->label6->Text = L"label6";
+			this->label6->Text = L"w[1] :";
 			// 
 			// label7
 			// 
 			this->label7->AutoSize = true;
-			this->label7->Location = System::Drawing::Point(1125, 98);
+			this->label7->Location = System::Drawing::Point(1096, 325);
 			this->label7->Name = L"label7";
-			this->label7->Size = System::Drawing::Size(46, 17);
+			this->label7->Size = System::Drawing::Size(41, 17);
 			this->label7->TabIndex = 12;
-			this->label7->Text = L"label7";
+			this->label7->Text = L"w[2] :";
 			// 
 			// label8
 			// 
 			this->label8->AutoSize = true;
-			this->label8->Location = System::Drawing::Point(744, 317);
+			this->label8->Location = System::Drawing::Point(744, 325);
 			this->label8->Name = L"label8";
 			this->label8->Size = System::Drawing::Size(143, 17);
 			this->label8->TabIndex = 13;
@@ -353,7 +370,7 @@ namespace ArtificialNeuralNetwork {
 			// label9
 			// 
 			this->label9->AutoSize = true;
-			this->label9->Location = System::Drawing::Point(747, 350);
+			this->label9->Location = System::Drawing::Point(744, 353);
 			this->label9->Name = L"label9";
 			this->label9->Size = System::Drawing::Size(64, 17);
 			this->label9->TabIndex = 14;
@@ -393,12 +410,84 @@ namespace ArtificialNeuralNetwork {
 			this->label11->TabIndex = 18;
 			this->label11->Text = L"Normalize Örnekler";
 			// 
+			// label12
+			// 
+			this->label12->AutoSize = true;
+			this->label12->Location = System::Drawing::Point(741, 261);
+			this->label12->Name = L"label12";
+			this->label12->Size = System::Drawing::Size(198, 17);
+			this->label12->TabIndex = 19;
+			this->label12->Text = L"Eklenen Örnek Konum Bilgisi :";
+			// 
+			// button3
+			// 
+			this->button3->BackColor = System::Drawing::Color::Khaki;
+			this->button3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 9, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->button3->Location = System::Drawing::Point(743, 162);
+			this->button3->Name = L"button3";
+			this->button3->Size = System::Drawing::Size(531, 44);
+			this->button3->TabIndex = 20;
+			this->button3->Text = L"Neural Aðý Hazýrla";
+			this->button3->UseVisualStyleBackColor = false;
+			this->button3->Click += gcnew System::EventHandler(this, &MyForm::button3_Click);
+			// 
+			// comboBox1
+			// 
+			this->comboBox1->FormattingEnabled = true;
+			this->comboBox1->Items->AddRange(gcnew cli::array< System::Object^  >(6) { L"10000", L"100000", L"500000", L"1000000", L"2000000", L"10000000" });
+			this->comboBox1->Location = System::Drawing::Point(1136, 48);
+			this->comboBox1->Name = L"comboBox1";
+			this->comboBox1->Size = System::Drawing::Size(121, 24);
+			this->comboBox1->TabIndex = 0;
+			this->comboBox1->Text = L"10000";
+			// 
+			// comboBox2
+			// 
+			this->comboBox2->FormattingEnabled = true;
+			this->comboBox2->Items->AddRange(gcnew cli::array< System::Object^  >(5) { 0.1, 0.01, 0.001, 0.0001, 0.00001 });
+			this->comboBox2->Location = System::Drawing::Point(1136, 91);
+			this->comboBox2->Name = L"comboBox2";
+			this->comboBox2->Size = System::Drawing::Size(121, 24);
+			this->comboBox1->TabIndex = 0;
+			this->comboBox1->Text = L"0.1";
+			// 
+			// label13
+			// 
+			this->label13->BackColor = System::Drawing::Color::YellowGreen;
+			this->label13->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label13->Location = System::Drawing::Point(1070, 48);
+			this->label13->Name = L"label13";
+			this->label13->Size = System::Drawing::Size(60, 24);
+			this->label13->TabIndex = 23;
+			this->label13->Text = L"Cycle";
+			this->label13->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
+			// label14
+			// 
+			this->label14->BackColor = System::Drawing::Color::YellowGreen;
+			this->label14->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 7.8F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(162)));
+			this->label14->Location = System::Drawing::Point(1070, 91);
+			this->label14->Name = L"label14";
+			this->label14->Size = System::Drawing::Size(60, 24);
+			this->label14->TabIndex = 24;
+			this->label14->Text = L"Error";
+			this->label14->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FloralWhite;
 			this->ClientSize = System::Drawing::Size(1303, 603);
+			this->Controls->Add(this->label14);
+			this->Controls->Add(this->label13);
+			this->Controls->Add(this->comboBox2);
+			this->Controls->Add(this->comboBox1);
+			this->Controls->Add(this->button3);
+			this->Controls->Add(this->label12);
 			this->Controls->Add(this->label11);
 			this->Controls->Add(this->label10);
 			this->Controls->Add(this->textBox2);
@@ -432,8 +521,8 @@ namespace ArtificialNeuralNetwork {
 		}
 #pragma endregion
 	private: System::Void pictureBox1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
-
 		//picture box eksen doðrularý çizen fonksiyon
+
 		Pen^ pen = gcnew Pen(Color::Gray, 2.5f);
 		int center_width, center_height;
 		center_width = (int)(pictureBox1->Width / 2);
@@ -446,9 +535,10 @@ namespace ArtificialNeuralNetwork {
 	    /*picturebox üzerine mouse ile týklanýnca tetiklenen fonksiyon.Burada kullanýcý ekrana týklayýnca picturebox'ta hem noktalarý
 		gösterip hemde konum deðerlerini alacaðýz.*/
 		
-		if (classValue > 0 ){
-			if (instanceValue > 0) {
-				
+		if (classValue = 2) {//single neuron delta
+
+			if (classTag == 1) {
+				classId = -1;//sýnýf id'si 1 den baþlayacak
 				int temp_x, temp_y;
 				double x1, x2; //x1 = width, x2 = height
 				//mouse ile týklayýnca ekranýn konum deðerleri temp_x ve temp_y deðiþkenlerine atanýr.
@@ -460,67 +550,101 @@ namespace ArtificialNeuralNetwork {
 				x2 = (double)((pictureBox1->Height >> 1) - temp_y);
 
 				//her týklamada örnekler diziye geçirilir.
-				instances[constTotalInstanceSize - totalInstanceSize].id = classId;
-				instances[constTotalInstanceSize - totalInstanceSize].x1 = x1;
-				instances[constTotalInstanceSize - totalInstanceSize].x2 = x2;
+				Instance temp;
+				temp.id = classId;
+			
+				temp.x1 = x1;
+				temp.x2 = x2;
+
+				instances2->Add(temp);
+				/*MessageBox::Show("Class degeri:" + classValue.ToString() + "  instance deðeri:" + instanceValue.ToString());*/
+				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x - 5, temp_y, temp_x + 5, temp_y);
+				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x, temp_y - 5, temp_x, temp_y + 5);
+
+				label3->Text = "x1 = " + Convert::ToString(temp.x1) + "    x2 = " + Convert::ToString(temp.x2);
+				label4->Text = "Eklenen Örnek Sayýsý: " + Convert::ToString(instances2->Count) + " Class Id: " + Convert::ToString(classId);
+				textBox1->Text += "Id: " + Convert::ToString(classId) + "   x1 = " + Convert::ToString(temp.x1) + "    x2 = " + Convert::ToString(temp.x2 + "\r\n");
+
+			}
+			else if (classTag == 2) {
+				classId = 1;
+				pen = gcnew Pen(Color::Blue, 3.0f);
+				int temp_x, temp_y;
+				double x1, x2; //x1 = width, x2 = height
+				//mouse ile týklayýnca ekranýn konum deðerleri temp_x ve temp_y deðiþkenlerine atanýr.
+				temp_x = (Convert::ToInt32(e->X));
+				temp_y = (Convert::ToInt32(e->Y));
+
+				// Noktalarin ana eksenin merkezine gore tasinmasi.x1 yatay eksen, x2 dikey eksen.
+				x1 = (double)(temp_x - (pictureBox1->Width >> 1));
+				x2 = (double)((pictureBox1->Height >> 1) - temp_y);
+
+				//her týklamada örnekler diziye geçirilir.
+				Instance temp;
+				temp.id = classId;
+				temp.x1 = x1;
+				temp.x2 = x2;
+
+				instances2->Add(temp);
 
 				/*MessageBox::Show("Class degeri:" + classValue.ToString() + "  instance deðeri:" + instanceValue.ToString());*/
 				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x - 5, temp_y, temp_x + 5, temp_y);
 				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x, temp_y - 5, temp_x, temp_y + 5);
 
-				label3->Text = "x1 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x1) + "    x2 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x2);
-				label4->Text = "Eklenebilir örnek adedi: " + Convert::ToString(totalInstanceSize - 1) + " Class Id: " + Convert::ToString(classId);
-				textBox1->Text += "Id: " + Convert::ToString(classId) + "   x1 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x1) + "    x2 = " + Convert::ToString(instances[constTotalInstanceSize - totalInstanceSize].x2 + "\r\n");
-				instanceValue--;
-				totalInstanceSize--;
-			}
-			else {
-				classValue--;
-				classId = classId + 2;
-				instanceValue = Decimal::ToInt32(numericUpDown2->Value);
-				System::Random^ rastgele = gcnew System::Random();
-				pen = gcnew Pen(System::Drawing::Color::FromArgb(rastgele->Next(256), rastgele->Next(256), rastgele->Next(256)), 3.0f);
+				label3->Text = "x1 = " + Convert::ToString(temp.x1) + "    x2 = " + Convert::ToString(temp.x2);
+				label4->Text = "Eklenen Örnek Sayýsý: " + Convert::ToString(instances2->Count) + " Class Id: " + Convert::ToString(classId);
+				textBox1->Text += "Id: " + Convert::ToString(classId) + "   x1 = " + Convert::ToString(temp.x1) + "    x2 = " + Convert::ToString(temp.x2 + "\r\n");
 
 			}
+		}
+		else if (classValue > 2) {//multi neuron or multi layer.
+
 
 		}
-		else {
-			MessageBox::Show("Tüm Sýnýf ve Örnekler eklenmiþtir.");
-		}
+
 
     }
+	private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
+		//neural aðý hazýrla.Kullanýcý girilecek sýnýf sayýsýný seçer ve buradan aðý hazýrlar.
+		button1->Enabled = true;
+		button2->Enabled = false;
+		button3->Enabled = false;
+		classValue = Decimal::ToInt32(numericUpDown1->Value);//sýnýf sayýsý alýnýr
+		numericUpDown1->Enabled = false;//sýnýfý seçtiren nümerik iptal edilir
+		numericUpDown2->Enabled = true;//sýnýf etiket için oluþturulan nümerikup down aktif edilir.
+		numericUpDown2->Value = 1;
+		classTag = Decimal::ToInt32(numericUpDown2->Value);
+		MessageBox::Show("PictureBox üzerindeki koordinat alanlarýna örnekleri týklayarak yerleþtiriniz.");
+    }
+
 
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-		//kullanýcý girilecek sýnýf sayýsý ve her sýnýfa ait örnek sayýsýný seçer ve onayla butonuna týklar.
-
-		//sýnýf sayýsý ve her sýnýfa ait örnek sayýsý alýnýr.
-		classValue = Decimal::ToInt32(numericUpDown1->Value);
-		instanceValue = Decimal::ToInt32(numericUpDown2->Value);
-
-		//týklama boyunca bu sayýlarýn deðiþmesini engellemek için nesneler devre dýþý býrakýlýr.
-		numericUpDown1->Enabled = false;
-		numericUpDown2->Enabled = false;
-
-		totalInstanceSize = classValue * instanceValue;//toplam örnek sayýsý
-		constTotalInstanceSize = classValue * instanceValue;//toplam örnek sayýsý ama bu sabit kalacak
-
-		classId = -1;//sýnýf id'si 1 den baþlayacak
-		instances = new Instance[totalInstanceSize];//bellekte toplam örnek sayýsý kadar alan ayrýlacak.
+	//seçimlerin onaylanmasý
+		//kullanýcý tüm örnekleri girer.
 		
-		label3->Text = "x1 = 0  "  + "  x2 = 0" ;
-		label4->Text = "Eklenebilir örnek adedi: 0 " + " Class Id: Unkown" ;
+		numericUpDown2->Enabled = false;
+		button1->Enabled = false;
+		button2->Enabled = true;
+		button3->Enabled = false;
+		totalInstanceSize = instances2->Count;//toplam örnek sayýsý
+		constTotalInstanceSize = instances2->Count;//toplam örnek sayýsý ama bu sabit kalacak
 
-		MessageBox::Show("PictureBox üzerindeki koordinat alanlarýna örnekleri týklayarak yerleþtiriniz.");
-
-
+		
+		choosenError = System::Convert::ToDouble(comboBox2->SelectedItem->ToString());
+		choosenCycle = System::Convert::ToInt32(comboBox1->SelectedItem->ToString());
 	}
 
 	private: System::Void button2_Click(System::Object^ sender, System::EventArgs^ e) {
-	
-		delete[] instances;
+
+		numericUpDown1->Enabled = true;//ilk baþlarken sýnýf sayýsý seçilsin
+		numericUpDown2->Enabled = false;
+		button1->Enabled = false;
+		button2->Enabled = false;
+		button3->Enabled = true;
+		instances2->Clear();
 		pictureBox1->Refresh();
 		classValue = 0;
-		instanceValue = 0;
+	
 		totalInstanceSize = 0;
 		constTotalInstanceSize = 0;
 		classId = 0;
@@ -528,13 +652,18 @@ namespace ArtificialNeuralNetwork {
 		numericUpDown2->Enabled = true;
 
 		label3->Text = "x1 = 0  " + "  x2 = 0";
-		label4->Text = "Eklenebilir örnek adedi: 0 " + " Class Id: Unkown";
+		label4->Text = "Eklenen Örney Sayýsý: 0 " + " Class Id: Unkown";
 		label5->Text = "w[0]: 0 " ;
 		label6->Text = "w[1]: 0 " ;
 		label7->Text = "w[2]: 0 " ;
 		
 	}
 
+	private: System::Void numericUpDown2_ValueChanged(System::Object^ sender, System::EventArgs^ e) {
+
+		 classTag = Decimal::ToInt32(numericUpDown2->Value);//kullanýcý her deðiþince etiket seçilir.
+
+	}
 	private: System::Void randomizeToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		//rastgele doðru çizimi
 
@@ -567,47 +696,6 @@ namespace ArtificialNeuralNetwork {
 
 
 	private: System::Void perceptronToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		//perceptron learning
-
-		//double totalError = 0.0;
-
-		//int totalCycleCount = 0;
-
-		//double tolerance = 1e-9; // Tolerans deðeri
-
-		//while (true) {
-		//	for (int i = 0; i < constTotalInstanceSize; i++) {
-
-		//		totalError += perceptronLearning(instances[i], weight, 0.1);
-
-
-		//	}
-		//	totalCycleCount++;
-
-		//	if (std::abs(totalError - 0) < tolerance) {
-		//		break;
-		//	}
-		//	else {
-		//		totalError = 0.0;
-		//	}
-		//}
-
-		//label8->Text = "Total Cycle Count = " + System::Convert::ToString(totalCycleCount);
-		//
-		//Pen^ pen = gcnew Pen(Color::Purple, 3.0f);
-
-		//int min_x, max_x, min_y, max_y;
-
-		//label5->Text = "w[0]: " + System::Convert::ToString(weight[0]);
-		//label6->Text = "w[1]: " + System::Convert::ToString(weight[1]);
-		//label7->Text = "w[2]: " + System::Convert::ToString(weight[2]);
-
-		//min_x = (this->pictureBox1->Width) / -2;
-		//min_y = YPoint(min_x, weight);
-		//max_x = (this->pictureBox1->Width) / 2;
-		//max_y = YPoint(max_x, weight);
-		//pictureBox1->CreateGraphics()->DrawLine(pen, (pictureBox1->Width / 2) + min_x, (pictureBox1->Height / 2) - min_y, (pictureBox1->Width / 2) + max_x, (pictureBox1->Height / 2) - max_y);
-		//
 
 
 		Pen^ pen = gcnew Pen(Color::Purple, 3.0f);
@@ -624,7 +712,7 @@ namespace ArtificialNeuralNetwork {
 			allCyclesDone = true; //Butun cycle'lar tamamlandimi
 
 			for (int j = 0; j < constTotalInstanceSize; j++) {
-				trainingIsDone[j] = perceptronLearning(instances[j], weight, 0.1);
+				trainingIsDone[j] = perceptronLearning(instances2[j], weight, 0.1);
 			}
 				
 			for (int k = 0; k < constTotalInstanceSize; k++)
@@ -656,7 +744,7 @@ namespace ArtificialNeuralNetwork {
 	private: System::Void deltaToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		//delta learning
 
-		Pen^ pen = gcnew Pen(Color::Purple, 3.0f);
+		
 
 		/*for (int i = 0; i < constTotalInstanceSize; i++) {
 
@@ -668,8 +756,8 @@ namespace ArtificialNeuralNetwork {
 		double totalY = 0.0;
 
 		for (int i = 0; i < constTotalInstanceSize; i++) {
-			totalX += instances[i].x1;
-			totalY += instances[i].x2;
+			totalX += instances2[i].x1;
+			totalY += instances2[i].x2;
 		}
 
 		double mean_X = totalX / constTotalInstanceSize;
@@ -679,8 +767,8 @@ namespace ArtificialNeuralNetwork {
 		double totalX2 = 0.0;
 		double totalY2 = 0.0;
 		for (int i = 0; i < constTotalInstanceSize; i++) {
-			totalX2 += pow(instances[i].x1 - mean_X, 2);
-			totalY2 += pow(instances[i].x2 - mean_Y, 2);
+			totalX2 += pow(instances2[i].x1 - mean_X, 2);
+			totalY2 += pow(instances2[i].x2 - mean_Y, 2);
 		}
 
 		double standartDev_X = sqrt(totalX2 / (constTotalInstanceSize-1));
@@ -688,8 +776,8 @@ namespace ArtificialNeuralNetwork {
 
 		for (int i = 0; i < constTotalInstanceSize; i++) {
 
-			instances[i] = batchNormalization(instances[i],mean_X,standartDev_X,mean_Y,standartDev_Y);
-			textBox2->Text += "Id: " + Convert::ToString(instances[i].id) + "   x1 = " + Convert::ToString(instances[i].x1) + "    x2 = " + Convert::ToString(instances[i].x2 + "\r\n");
+			instances2[i] = batchNormalization(instances2[i],mean_X,standartDev_X,mean_Y,standartDev_Y);
+			textBox2->Text += "Id: " + Convert::ToString(instances2[i].id) + "   x1 = " + Convert::ToString(instances2[i].x1) + "    x2 = " + Convert::ToString(instances2[i].x2 + "\r\n");
 		}
 
 
@@ -697,8 +785,6 @@ namespace ArtificialNeuralNetwork {
 	
 
 		int min_x, max_x, min_y, max_y;
-
-		long int maxCycle = 100000;
 	
 		int totalCycleCount = 0;
 
@@ -709,26 +795,32 @@ namespace ArtificialNeuralNetwork {
 
 			error = 0.0;
 			for (int i= 0; i < constTotalInstanceSize; i++) {
-				error += deltaLearning(instances[i], weight, 0.1);
+				error += deltaLearning(instances2[i], weight, 0.1);
 			}
 			totalCycleCount++;
 
 			double err = (error / constTotalInstanceSize);
 			
 			
-			pictureBox1->CreateGraphics()->DrawLine(pen, (pictureBox1->Width / 2) + min_x, (pictureBox1->Height / 2) - min_y, (pictureBox1->Width / 2) + max_x, (pictureBox1->Height / 2) - max_y);
-			pictureBox1->Refresh();
-			if (err < 0.1 || totalCycleCount == maxCycle) {
+			
+			if (err < choosenError || totalCycleCount == choosenCycle) {
 				break;
 			}
 		}
 
-
+		pictureBox1->Refresh();
 
 		for (int i = 0; i < constTotalInstanceSize; i++) {
+			
+			if (instances2[i].id == -1) {
+				pen = gcnew Pen(Color::Red, 3.0f);
 
-			int x = instances[i].x1*30 + (pictureBox1->Width >> 1);
-			int y = (pictureBox1->Height >> 1) - instances[i].x2*30;
+			}
+			else if (instances2[i].id == 1) {
+				pen = gcnew Pen(Color::Blue, 3.0f);
+			}
+			int x = instances2[i].x1*30 + (pictureBox1->Width >> 1);
+			int y = (pictureBox1->Height >> 1) - instances2[i].x2*30;
 			
 			pictureBox1->CreateGraphics()->DrawLine(pen, x - 5, y, x + 5, y);
 			pictureBox1->CreateGraphics()->DrawLine(pen, x, y - 5, x, y + 5);
@@ -746,10 +838,12 @@ namespace ArtificialNeuralNetwork {
 		max_x = (this->pictureBox1->Width) / 2;
 		max_y = YPoint(max_x, weight);
 
-		pen->Color = Color::Yellow;
+		pen->Color = Color::Purple;
 		pictureBox1->CreateGraphics()->DrawLine(pen, (pictureBox1->Width / 2) + min_x, (pictureBox1->Height / 2) - min_y, (pictureBox1->Width / 2) + max_x, (pictureBox1->Height / 2) - max_y);
 
 	}
+
+
 
 };
 }

@@ -1,6 +1,8 @@
 #pragma once
 
-struct Instance {
+using namespace System::Drawing;
+
+public value struct Instance {
 
 	int id; // örneðin id'si onun hangi sýnýfa ait olduðunu bize söyler
 	double x1; // x koordinat deðeri
