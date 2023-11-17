@@ -50,7 +50,7 @@ double createNeuron(Instance instance, double* weights,int i,int dim, double c, 
 
 	// net = w[0]*x1 + w[1].x2 + w[2]*bias
 	//her bir örnek için net hesaplansýn.
-	net = instance.x1 * weights[0] + instance.x2 * weights[1] + bias * weights[2];
+	net = instance.x1 * weights[i * dim] + instance.x2 * weights[i * dim + 1] + bias * weights[i * dim + 2];
 
 	sigmoidOutput = sigmoidFunction(net, -1);
 	derivateOutput = sigmoidFunctionDerivate(sigmoidOutput);// çýkýþ -1 veya + 1 olur.
@@ -58,9 +58,10 @@ double createNeuron(Instance instance, double* weights,int i,int dim, double c, 
 	double error = 0.5 * pow(desiredOutput - sigmoidOutput, 2);
 
 
-	weights[i] = weights[0] + c * (desiredOutput - sigmoidOutput) * derivateOutput * instance.x1;
-	weights[i+1] = weights[1] + c * (desiredOutput - sigmoidOutput) * derivateOutput * instance.x2;
-	weights[i+2] = weights[2] + c * (desiredOutput - sigmoidOutput) * derivateOutput * bias;
+	weights[i*dim] = weights[i * dim] + c * (desiredOutput - sigmoidOutput) * derivateOutput * instance.x1;
+	weights[i * dim +1] = weights[i * dim + 1] + c * (desiredOutput - sigmoidOutput) * derivateOutput * instance.x2;
+	weights[i * dim +2] = weights[i * dim +2] + c * (desiredOutput - sigmoidOutput) * derivateOutput * bias;
 
 	return error;//aðýrlýklar eþit deðil ise hata = desiredOutput - output
 }
+
