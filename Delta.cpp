@@ -20,7 +20,7 @@ double deltaLearning(Instance instance, double* weights, double c) {//bu fonksiy
 	//tek nöronlu að c öðrenme sabiti 0.1
 	// w1,w2,w3
 	//bias x3 deðeri genelde 1 e eþit, net=W*x, output = f(net)
-	double bias = 1, net = 0.0, derivateOutput = 0.0,sigmoidOutput = 0.0;
+	double bias = -1, net = 0.0, derivateOutput = 0.0,sigmoidOutput = 0.0;
 	double desiredOutput = (int)instance.id;
   
 	// net = w[0]*x1 + w[1].x2 + w[2]*bias
@@ -36,7 +36,7 @@ double deltaLearning(Instance instance, double* weights, double c) {//bu fonksiy
 	weights[0] = weights[0] + c * (desiredOutput - sigmoidOutput) * derivateOutput * instance.x1;
 	weights[1] = weights[1] + c * (desiredOutput - sigmoidOutput) * derivateOutput * instance.x2;
 	weights[2] = weights[2] + c * (desiredOutput - sigmoidOutput) * derivateOutput * bias;
-
+	
 	return error;//aðýrlýklar eþit deðil ise hata = desiredOutput - output
 }
 
@@ -45,7 +45,7 @@ double createNeuron(Instance instance, double* weights,int i,int dim, double c, 
 	//çoklu nöronlu að c öðrenme sabiti 0.1
 	// w1,w2,w3
 	//bias x3 deðeri genelde 1 e eþit, net=W*x, output = f(net)
-	double bias = 1, net = 0.0, derivateOutput = 0.0, sigmoidOutput = 0.0;
+	double bias = -1, net = 0.0, derivateOutput = 0.0, sigmoidOutput = 0.0;
 	
 
 	// net = w[0]*x1 + w[1].x2 + w[2]*bias
@@ -57,11 +57,11 @@ double createNeuron(Instance instance, double* weights,int i,int dim, double c, 
 
 	double error = 0.5 * pow(desiredOutput - sigmoidOutput, 2);
 
-
+	
 	weights[i*dim] = weights[i * dim] + c * (desiredOutput - sigmoidOutput) * derivateOutput * instance.x1;
 	weights[i * dim +1] = weights[i * dim + 1] + c * (desiredOutput - sigmoidOutput) * derivateOutput * instance.x2;
-	weights[i * dim +2] = weights[i * dim +2] + c * (desiredOutput - sigmoidOutput) * derivateOutput * bias;
-
+	weights[i * dim +2] = weights[i * dim + 2] + c * (desiredOutput - sigmoidOutput) * derivateOutput * bias;
+	
 	return error;//aðýrlýklar eþit deðil ise hata = desiredOutput - output
 }
 
