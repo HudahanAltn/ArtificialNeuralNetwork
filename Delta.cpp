@@ -65,3 +65,65 @@ double createNeuron(Instance instance, double* weights,int i,int dim, double c, 
 	return error;//aðýrlýklar eþit deðil ise hata = desiredOutput - output
 }
 
+void feedForward(Instance instance, double* middleWeights, double* outWeights,double c,double*mFNetArray,double*oFNetArray,int mLayerSize,int oLayerSize) {
+
+	//mNetArray noron+ bias sayýsý kadar elemanlý fnet deðerleirni tuutan dizi olsun.Msize direkt ara noron nasýyýsý olsun
+	//oNetArray ise outputnet deðerlerini tutan dizi olsun. oSize'da output noron sayýsý kadar olsun.
+	double inputBias = -1, middleBias = -1, derivateOutput = 0.0, sigmoidOutput = 0.0;
+	double desiredOutput = (int)instance.id;
+	int dim = 3;//Ýnput dimension daima sabit ve 3
+	int middleLayerDim = mLayerSize + 1;
+	//middleLayer.Msize = 2 veya 3 olblr
+
+	for (int i = 0; i < mLayerSize; i++) {// ara katmanda 2 noron varsa 2 tane fnet hesaplýcak.6 tane middleweight var.
+		int net = instance.x1 * middleWeights[i* dim] + instance.x2 * middleWeights[i* dim +1] + inputBias * middleWeights[i* dim +2];
+		mFNetArray[i] = sigmoidFunction(net, -1);//fnet deðerini tutacak.burada 2 tane attýk fnet1 ve f net2
+	}
+	
+
+	//outlayer.
+	for (int i = 0; i < oLayerSize; i++) {//çýkýþta 1 tane noron var.3 tane ooutWightvar.outweigh sayýsý ile mNetarray sayýsý eþit.
+		int net = 0;
+		for (int j = 0; j < mLayerSize; j++) {//msize=2
+
+			net += mFNetArray[j] * outWeights[i* middleLayerDim + j];
+			
+		}
+		net += (-1) * outWeights[(i* middleLayerDim) + (mLayerSize)];
+		oFNetArray[i] = sigmoidFunction(net, -1);//çýkýþnoronunun fneti.bu dizide 1 tane var.
+	}
+}
+
+//feedforward tamam.
+double backForward(Instance instance, double* middleWeights, double* outWeights, double c, double* mFNetArray, double* oFNetArray, int mLayerSize, int oLayerSize) {
+	double inputBias = -1, middleBias = -1, net = 0.0, derivateOutput = 0.0, sigmoidOutput = 0.0;
+	double desiredOutput = (int)instance.id;
+	int dim = 3;
+	int middleLayerDim = mLayerSize + 1;
+
+	//out layer aðýrlýk güncllemeleri
+	for (int i = 0; i < oLayerSize; i++) {
+		for (int j = 0; j < mLayerSize ; j++) {
+			outWeights[i* middleLayerDim + j] += c * (desiredOutput + oFNetArray[i]) * sigmoidFunctionDerivate(oFNetArray[i]) * mFNetArray[j];
+		}
+		outWeights[i * middleLayerDim + mLayerSize ] += c * (desiredOutput + oFNetArray[i]) * sigmoidFunctionDerivate(oFNetArray[i]) * (-1);
+	}
+	 //buraya kadar 2-1,3-1,2-2,3-2,4-2,2-3 aðlarýnda sorunsuz iþlem saðlandý.---------
+
+	//middlelayer aðýrlýk güncellemeleri.Burada kaldýk.!!!!!!!!!!
+	/*for (int i = 0; i < mSize; i++) {
+
+		for (int j = 0; j < oSize; j++) {
+
+			middleWeights[i * dim] += c * mNetArray[i] * instance.x1 * (desiredOutput - oNetArray[j]) * sigmoidFunctionDerivate(sigmoidFunction(oNetArray[0], -1)) * outWeights[mSize];
+			middleWeights[i * dim + 1] += c * mNetArray[i] * instance.x2 * (desiredOutput - oNetArray[j]) * sigmoidFunctionDerivate(sigmoidFunction(oNetArray[0], -1)) * outWeights[mSize];
+			middleWeights[i * dim + 2] += c * mNetArray[i] * inputBias * (desiredOutput - oNetArray[j]) * sigmoidFunctionDerivate(sigmoidFunction(oNetArray[0], -1)) * outWeights[mSize];
+
+		}
+		
+	}
+	double error = 0.5 * pow(desiredOutput - oNetArray[0], 2);*/
+
+
+	//return error;//aðýrlýklar eþit deðil ise hata = desiredOutput - output
+}
