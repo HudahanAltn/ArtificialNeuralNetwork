@@ -9,7 +9,8 @@
 #include "Learning.h"
 #include "Normalization.h"
 #include "Utilities.h"
-
+#include <fstream>
+#include <string>
 namespace ArtificialNeuralNetwork {
 
 	using namespace System;
@@ -51,6 +52,8 @@ namespace ArtificialNeuralNetwork {
 			instances = gcnew List<Instance>();
 			instances2 = gcnew List<Instance>();
 			colors = gcnew List<Color>();
+			chart1->Visible = false;
+			momentum = false;
 		}
 
 	public:
@@ -71,11 +74,14 @@ namespace ArtificialNeuralNetwork {
 		double* standartDev;
 		float* biasMiddle;
 		float* biasOut;
-	private: System::Windows::Forms::PictureBox^ pictureBox2;
+		int choosenCycle;
+		bool momentum;
+	private: System::Windows::Forms::CheckBox^ checkBox1;
+	private: System::Windows::Forms::ToolStripMenuItem^ continueLearningToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ readWeightToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ readInstancesToolStripMenuItem;
 	public:
-
-
-		   int choosenCycle;
+		double* mFnetInstances;
 
 	protected:
 		/// <summary>
@@ -119,16 +125,17 @@ namespace ArtificialNeuralNetwork {
 	private: System::Windows::Forms::ComboBox^ comboBox1;
 	private: System::Windows::Forms::ComboBox^ comboBox2;
 	private: System::Windows::Forms::TextBox^ textBox3;
-	
 	private: System::Windows::Forms::ToolStripMenuItem^ multiLayerToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ trainingToolStripMenuItem1;
 	private: System::Windows::Forms::ToolStripMenuItem^ testingToolStripMenuItem1;
-
 	private: System::Windows::Forms::Label^ label5;
 	private: System::Windows::Forms::Label^ label6;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown3;
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown4;
-
+	private: System::Windows::Forms::PictureBox^ pictureBox2;
+	private: System::Windows::Forms::ToolStripMenuItem^ errorToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^ showErrorToolStripMenuItem;
+	private: System::Windows::Forms::DataVisualization::Charting::Chart^ chart1;
 #pragma region Windows Form Designer generated code
 		/// <summary>
 		/// Tasarýmcý desteði için gerekli metot - bu metodun 
@@ -136,6 +143,9 @@ namespace ArtificialNeuralNetwork {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^ chartArea2 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^ legend2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::Series^ series2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->processToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -145,6 +155,9 @@ namespace ArtificialNeuralNetwork {
 			this->multiLayerToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->trainingToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->testingToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->continueLearningToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->errorToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->showErrorToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->treeView1 = (gcnew System::Windows::Forms::TreeView());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->label2 = (gcnew System::Windows::Forms::Label());
@@ -174,6 +187,10 @@ namespace ArtificialNeuralNetwork {
 			this->numericUpDown3 = (gcnew System::Windows::Forms::NumericUpDown());
 			this->numericUpDown4 = (gcnew System::Windows::Forms::NumericUpDown());
 			this->pictureBox2 = (gcnew System::Windows::Forms::PictureBox());
+			this->chart1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
+			this->checkBox1 = (gcnew System::Windows::Forms::CheckBox());
+			this->readWeightToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->readInstancesToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->menuStrip1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
@@ -181,6 +198,7 @@ namespace ArtificialNeuralNetwork {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown3))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown4))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->chart1))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// pictureBox1
@@ -198,9 +216,9 @@ namespace ArtificialNeuralNetwork {
 			// menuStrip1
 			// 
 			this->menuStrip1->ImageScalingSize = System::Drawing::Size(20, 20);
-			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
 				this->processToolStripMenuItem,
-					this->multiLayerToolStripMenuItem
+					this->multiLayerToolStripMenuItem, this->errorToolStripMenuItem
 			});
 			this->menuStrip1->Location = System::Drawing::Point(0, 0);
 			this->menuStrip1->Name = L"menuStrip1";
@@ -217,33 +235,33 @@ namespace ArtificialNeuralNetwork {
 			// 
 			// ýnitializationToolStripMenuItem
 			// 
-			this->ýnitializationToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+			this->ýnitializationToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
 				this->randomizeToolStripMenuItem,
-					this->exitToolStripMenuItem
+					this->exitToolStripMenuItem, this->readWeightToolStripMenuItem, this->readInstancesToolStripMenuItem
 			});
 			this->ýnitializationToolStripMenuItem->Name = L"ýnitializationToolStripMenuItem";
-			this->ýnitializationToolStripMenuItem->Size = System::Drawing::Size(174, 26);
+			this->ýnitializationToolStripMenuItem->Size = System::Drawing::Size(224, 26);
 			this->ýnitializationToolStripMenuItem->Text = L"Initialization";
 			// 
 			// randomizeToolStripMenuItem
 			// 
 			this->randomizeToolStripMenuItem->Name = L"randomizeToolStripMenuItem";
-			this->randomizeToolStripMenuItem->Size = System::Drawing::Size(167, 26);
+			this->randomizeToolStripMenuItem->Size = System::Drawing::Size(224, 26);
 			this->randomizeToolStripMenuItem->Text = L"Randomize";
 			this->randomizeToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::randomizeToolStripMenuItem_Click);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-			this->exitToolStripMenuItem->Size = System::Drawing::Size(167, 26);
+			this->exitToolStripMenuItem->Size = System::Drawing::Size(224, 26);
 			this->exitToolStripMenuItem->Text = L"Exit";
 			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::exitToolStripMenuItem_Click);
 			// 
 			// multiLayerToolStripMenuItem
 			// 
-			this->multiLayerToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+			this->multiLayerToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
 				this->trainingToolStripMenuItem1,
-					this->testingToolStripMenuItem1
+					this->testingToolStripMenuItem1, this->continueLearningToolStripMenuItem
 			});
 			this->multiLayerToolStripMenuItem->Name = L"multiLayerToolStripMenuItem";
 			this->multiLayerToolStripMenuItem->Size = System::Drawing::Size(92, 24);
@@ -252,16 +270,37 @@ namespace ArtificialNeuralNetwork {
 			// trainingToolStripMenuItem1
 			// 
 			this->trainingToolStripMenuItem1->Name = L"trainingToolStripMenuItem1";
-			this->trainingToolStripMenuItem1->Size = System::Drawing::Size(145, 26);
+			this->trainingToolStripMenuItem1->Size = System::Drawing::Size(224, 26);
 			this->trainingToolStripMenuItem1->Text = L"Training";
 			this->trainingToolStripMenuItem1->Click += gcnew System::EventHandler(this, &MyForm::trainingToolStripMenuItem1_Click);
 			// 
 			// testingToolStripMenuItem1
 			// 
 			this->testingToolStripMenuItem1->Name = L"testingToolStripMenuItem1";
-			this->testingToolStripMenuItem1->Size = System::Drawing::Size(145, 26);
+			this->testingToolStripMenuItem1->Size = System::Drawing::Size(224, 26);
 			this->testingToolStripMenuItem1->Text = L"Testing";
 			this->testingToolStripMenuItem1->Click += gcnew System::EventHandler(this, &MyForm::testingToolStripMenuItem1_Click);
+			// 
+			// continueLearningToolStripMenuItem
+			// 
+			this->continueLearningToolStripMenuItem->Name = L"continueLearningToolStripMenuItem";
+			this->continueLearningToolStripMenuItem->Size = System::Drawing::Size(224, 26);
+			this->continueLearningToolStripMenuItem->Text = L"ContinueLearning";
+			this->continueLearningToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::continueLearningToolStripMenuItem_Click);
+			// 
+			// errorToolStripMenuItem
+			// 
+			this->errorToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->showErrorToolStripMenuItem });
+			this->errorToolStripMenuItem->Name = L"errorToolStripMenuItem";
+			this->errorToolStripMenuItem->Size = System::Drawing::Size(55, 24);
+			this->errorToolStripMenuItem->Text = L"Error";
+			// 
+			// showErrorToolStripMenuItem
+			// 
+			this->showErrorToolStripMenuItem->Name = L"showErrorToolStripMenuItem";
+			this->showErrorToolStripMenuItem->Size = System::Drawing::Size(160, 26);
+			this->showErrorToolStripMenuItem->Text = L"ShowError";
+			this->showErrorToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::showErrorToolStripMenuItem_Click);
 			// 
 			// treeView1
 			// 
@@ -571,8 +610,49 @@ namespace ArtificialNeuralNetwork {
 			this->pictureBox2->SizeMode = System::Windows::Forms::PictureBoxSizeMode::AutoSize;
 			this->pictureBox2->TabIndex = 34;
 			this->pictureBox2->TabStop = false;
-		
 			this->pictureBox2->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm::pictureBox2_Paint);
+			// 
+			// chart1
+			// 
+			chartArea2->Name = L"ChartArea1";
+			this->chart1->ChartAreas->Add(chartArea2);
+			legend2->Name = L"Legend1";
+			this->chart1->Legends->Add(legend2);
+			this->chart1->Location = System::Drawing::Point(1345, 263);
+			this->chart1->Name = L"chart1";
+			series2->ChartArea = L"ChartArea1";
+			series2->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
+			series2->Legend = L"Legend1";
+			series2->Name = L"Series1";
+			this->chart1->Series->Add(series2);
+			this->chart1->Size = System::Drawing::Size(569, 340);
+			this->chart1->TabIndex = 35;
+			this->chart1->Text = L"chart1";
+			// 
+			// checkBox1
+			// 
+			this->checkBox1->AutoSize = true;
+			this->checkBox1->Location = System::Drawing::Point(1792, 107);
+			this->checkBox1->Name = L"checkBox1";
+			this->checkBox1->Size = System::Drawing::Size(99, 21);
+			this->checkBox1->TabIndex = 36;
+			this->checkBox1->Text = L"Momentum";
+			this->checkBox1->UseVisualStyleBackColor = true;
+			this->checkBox1->CheckedChanged += gcnew System::EventHandler(this, &MyForm::checkBox1_CheckedChanged);
+			// 
+			// readWeightToolStripMenuItem
+			// 
+			this->readWeightToolStripMenuItem->Name = L"readWeightToolStripMenuItem";
+			this->readWeightToolStripMenuItem->Size = System::Drawing::Size(224, 26);
+			this->readWeightToolStripMenuItem->Text = L"ReadWeight";
+			this->readWeightToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::readWeightToolStripMenuItem_Click);
+			// 
+			// readInstancesToolStripMenuItem
+			// 
+			this->readInstancesToolStripMenuItem->Name = L"readInstancesToolStripMenuItem";
+			this->readInstancesToolStripMenuItem->Size = System::Drawing::Size(224, 26);
+			this->readInstancesToolStripMenuItem->Text = L"ReadInstances";
+			this->readInstancesToolStripMenuItem->Click += gcnew System::EventHandler(this, &MyForm::readInstancesToolStripMenuItem_Click);
 			// 
 			// MyForm
 			// 
@@ -581,6 +661,8 @@ namespace ArtificialNeuralNetwork {
 			this->AutoSize = true;
 			this->BackColor = System::Drawing::Color::FloralWhite;
 			this->ClientSize = System::Drawing::Size(1924, 603);
+			this->Controls->Add(this->checkBox1);
+			this->Controls->Add(this->chart1);
 			this->Controls->Add(this->pictureBox2);
 			this->Controls->Add(this->numericUpDown4);
 			this->Controls->Add(this->numericUpDown3);
@@ -622,6 +704,7 @@ namespace ArtificialNeuralNetwork {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown3))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown4))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox2))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->chart1))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -704,6 +787,8 @@ namespace ArtificialNeuralNetwork {
 		numericUpDown2->Enabled = true;//sýnýf etiket için oluþturulan nümerikup down aktif edilir.
 		numericUpDown3->Enabled = true;
 		numericUpDown4->Enabled = true;
+		comboBox1->Enabled = false;
+		comboBox2->Enabled = false;
 		numericUpDown2->Value = 1;
 		classTag = Decimal::ToInt32(numericUpDown2->Value);
 		MessageBox::Show("PictureBox üzerindeki koordinat alanlarýna örnekleri týklayarak yerleþtiriniz.");
@@ -734,22 +819,47 @@ namespace ArtificialNeuralNetwork {
 		numericUpDown3->Enabled = false;//ara katman noron sayýsý seçilsin
 		numericUpDown4->Enabled = false;//cýkýs katman noron sayýsý seçilsin
 		numericUpDown2->Enabled = false;
+		comboBox1->Enabled = true;
+		comboBox2->Enabled = true;
+
 		button1->Enabled = false;
 		button2->Enabled = false;
 		button3->Enabled = true;
 		instances->Clear();
+		pictureBox1->Image = nullptr;
 		pictureBox1->Refresh();
+		pictureBox2->Refresh();
+		chart1->Series->Clear();
+		System::Windows::Forms::DataVisualization::Charting::Series^ yeniSeri = gcnew System::Windows::Forms::DataVisualization::Charting::Series();
+		yeniSeri->Name = "Series1";
+		chart1->Series->Add(yeniSeri);
+		yeniSeri->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
+
 		classValue = 0;
 	
 		totalInstanceSize = 0;
 		constTotalInstanceSize = 0;
 		classId = 0;
-		numericUpDown1->Enabled = true;
-		numericUpDown2->Enabled = true;
+		classValue = 0;//sýnýf sayýsý
+		
+		middleLayerNeuronNumber=2;
+		outLayerNeuronNumber=1;
+		instances->Clear();// ekrana týklanan noktalarý tutacak yani örneklerin listesi.
+		instances2->Clear();// ekrana týklanan noktalarý kopyasýný tutacak yani örneklerin listesi.
+		
+		delete[] weightMiddle;
+		delete[] weightOut;
+		delete[] biasMiddle;
+		delete[] biasOut;
+		
 
+		choosenCycle = 0;
+		choosenError = 0;
+		textBox3->Text = "";
 		label3->Text = "x1 = 0  " + "  x2 = 0";
 		label4->Text = "Eklenen Örney Sayýsý: 0 " + " Class Id: Unkown";
-	
+		label8->Text = "Total Cycle Count = 0";
+		label9->Text = "Error = 0";
 		
 	}
 	private: System::Void numericUpDown2_ValueChanged(System::Object^ sender, System::EventArgs^ e) {
@@ -766,10 +876,6 @@ namespace ArtificialNeuralNetwork {
 	}
 	private: System::Void randomizeToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		//katmanlara rastgele aðýrlýk atamalarý.
-
-		Pen^ pen = gcnew Pen(Color::Green, 3.0f);
-
-		int min_x, max_x, min_y, max_y;
 		
 		int Dim = 3;
 		int middleLayerSize = Dim * middleLayerNeuronNumber;
@@ -785,13 +891,14 @@ namespace ArtificialNeuralNetwork {
 			textBox3->Text += "w[" + Convert::ToString(i) + "]:" + Convert::ToString(weightMiddle[i]) + "\r\n ";
 		}
 		textBox3->Text += "WeightOut:\r\n\n";
-		for (int i = 0; i < outLayerNeuronNumber; i++) {
+		for (int i = 0; i < outLayerSize; i++) {
 			weightOut[i] = ((double)rand() / (RAND_MAX));
 			textBox3->Text += "w[" + Convert::ToString(i) + "]:" + Convert::ToString(weightOut[i]) + "\r\n ";
 		}
 		
 		biasMiddle = new float[middleLayerNeuronNumber];
 		biasOut = new float[outLayerNeuronNumber];
+		
 
 		//bias deðerleri ayrý dizide tuttum.
 		for (int i = 0; i < middleLayerNeuronNumber; i++) {
@@ -823,8 +930,10 @@ namespace ArtificialNeuralNetwork {
 			mean = new double[2];
 			mean[0] = mean_X;
 			mean[1] = mean_Y;
+
 			double totalX2 = 0.0;
 			double totalY2 = 0.0;
+
 			for (int i = 0; i < constTotalInstanceSize; i++) {
 				totalX2 += pow(instances[i].x1 - mean_X, 2);
 				totalY2 += pow(instances[i].x2 - mean_Y, 2);
@@ -843,92 +952,172 @@ namespace ArtificialNeuralNetwork {
 			}
 		}
 		
-		int min_x, max_x, min_y, max_y;
 		int totalCycleCount = 0;
 		double error = 0.0;
 
-		double* mFNetArray = new double[middleLayerNeuronNumber];//middle layer noronlarýn f(net) ini tutacak dizi
-		double* oFNetArray = new double[outLayerNeuronNumber];//out layer noronlarýn f(net) ini tutacak dizi
+		//double* mFNetArray = new double[middleLayerNeuronNumber];//middle layer noronlarýn f(net) ini tutacak dizi
+		//double* oFNetArray = new double[outLayerNeuronNumber];//out layer noronlarýn f(net) ini tutacak dizi
 	
+	
+		chart1->Series["Series1"]->Points->Clear();
 		while (true) {
+			double* mFNetArray = new double[middleLayerNeuronNumber];//middle layer noronlarýn f(net) ini tutacak dizi
+			double* oFNetArray = new double[outLayerNeuronNumber];//out layer noronlarýn f(net) ini tutacak dizi
 
 			error = 0.0;
 			
 			for (int i = 0; i < constTotalInstanceSize; i++) {
-				feedForward(instances[i], weightMiddle, weightOut, 1, mFNetArray, oFNetArray, middleLayerNeuronNumber, outLayerNeuronNumber);
-				error += backForward(instances[i], weightMiddle, weightOut, 1, mFNetArray, oFNetArray, middleLayerNeuronNumber, outLayerNeuronNumber);
-
+				error += feedForward(instances[i], weightMiddle, weightOut, 1, mFNetArray, oFNetArray, middleLayerNeuronNumber, outLayerNeuronNumber);
+				backForward(instances[i],momentum, weightMiddle, weightOut, 1, mFNetArray, oFNetArray, middleLayerNeuronNumber, outLayerNeuronNumber);
+				
 			}
-		
+
+			delete[] mFNetArray;
+			delete[] oFNetArray;
 
 			totalCycleCount++;
 
 			double err = (error / constTotalInstanceSize);
 
-
-
+			if (choosenCycle > 10000) {
+				if (totalCycleCount % 10000 == 0) {
+					chart1->Series["Series1"]->Points->AddXY(totalCycleCount, err);
+				}
+	
+			}else {
+				chart1->Series["Series1"]->Points->AddXY(totalCycleCount, err);
+			}
+			
 			if (err < choosenError || totalCycleCount == choosenCycle) {
 				break;
 			}
 		}
 
-		
+		for(int i = 0; i < middleLayerNeuronNumber; i++) {
+			biasMiddle[i] = weightMiddle[i * 3 + 2];
+		}
+
+		for (int i = 0; i < outLayerNeuronNumber; i++) {
+			biasOut[i] = weightOut[i * (middleLayerNeuronNumber + 1) + middleLayerNeuronNumber];
+		}
+
 		pictureBox1->Refresh();
 
 		label8->Text = "Total Cycle Count = " + System::Convert::ToString(totalCycleCount);
 		label9->Text = "Error = " + System::Convert::ToString(error / constTotalInstanceSize);
+
 	}
 	private: System::Void testingToolStripMenuItem1_Click(System::Object^ sender, System::EventArgs^ e) {
+		
+			float* x = new float[2];
+			pictureBox1->Refresh();
+			int num, temp_x, temp_y;
+			Bitmap^ surface = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
+			pictureBox1->Image = surface;
+			Color c;
+			for (int row = 0; row < pictureBox1->Height; row += 2) {
+				for (int column = 0; column < pictureBox1->Width; column += 2) {
+					x[0] = (float)(column - (pictureBox1->Width / 2));
+					x[1] = (float)((pictureBox1->Height / 2) - row);
+					x[0] = (float)(x[0] - mean[0]) / standartDev[0];
+					x[1] = (float)(x[1] - mean[1]) / standartDev[1];
+					num = MultiLayer_Test_Forward(x, weightMiddle, biasMiddle, weightOut, biasOut, 3, middleLayerNeuronNumber);
+					switch (num) {
+					case 0: c = Color::Red; break;
+					case 1: c = Color::Blue; break;
+					case 2: c = Color::Black; break;
+					case 3: c = Color::Brown; break;
+					case 4: c = Color::Orange; break;
+					default: c = Color::Gray;
+					}
+					surface->SetPixel(column, row, c);
+				}
+			}
 
-		//float* x = new float[2];
-		//pictureBox1->Refresh();
-		//int num, temp_x, temp_y;
-		//Bitmap^ surface = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
-		//pictureBox1->Image = surface;
-		//Color c;
-		//for (int row = 0; row < pictureBox1->Height; row += 2) {
-		//	for (int column = 0; column < pictureBox1->Width; column += 2) {
-		//		x[0] = (float)(column - (pictureBox1->Width / 2));
-		//		x[1] = (float)((pictureBox1->Height / 2) - row);
-		//		x[0] = (float)(x[0] - mean[0]) / standartDev[0];
-		//		x[1] = (float)(x[1] - mean[1]) / standartDev[1];
-		//		num = Test_Forward(x, weight, bias, classValue, 2);
-		//		switch (num) {
-		//		case 0: c = Color::Red; break;
-		//		case 1: c = Color::Blue; break;
-		//		case 2: c = Color::Black; break;
-		//		case 3: c = Color::Brown; break;
-		//		case 4: c = Color::Orange; break;
-		//		default: c = Color::Gray;
-		//		}
-		//		surface->SetPixel(column, row, c);
-		//	}
-		//}
-
-		//Pen^ pen;
-		//MessageBox::Show("Örnekler cizilecek");
-		//for (int i = 0; i < constTotalInstanceSize; i++) {
-		//	switch (int(instances[i].id)) {
-		//	case 1: pen = gcnew Pen(Color::Red, 3.0f); break;
-		//	case 2: pen = gcnew Pen(Color::Blue, 3.0f); break;
-		//	case 3: pen = gcnew Pen(Color::Black, 3.0f); break;
-		//	case 4: pen = gcnew Pen(Color::Brown, 3.0f); break;
-		//	case 5: pen = gcnew Pen(Color::Orange, 3.0f); break;
-		//	case 6: pen = gcnew Pen(Color::Gray, 3.0f); break;
-		//	default: pen = gcnew Pen(Color::Blue, 3.0f);
-		//	}//switch
-		//	temp_x = int(instances2[i].x1) + pictureBox1->Width / 2;
-		//	temp_y = pictureBox1->Height / 2 - int(instances2[i].x2);
-		//	pictureBox1->CreateGraphics()->DrawLine(pen, temp_x - 5, temp_y, temp_x + 5, temp_y);
-		//	pictureBox1->CreateGraphics()->DrawLine(pen, temp_x, temp_y - 5, temp_x, temp_y + 5);
-		//}
-
+			Pen^ pen;
+			MessageBox::Show("Örnekler cizilecek");
+			for (int i = 0; i < constTotalInstanceSize; i++) {
+				switch (int(instances[i].id)) {
+				case -1: pen = gcnew Pen(Color::Red, 3.0f); break;
+				case 1: pen = gcnew Pen(Color::Blue, 3.0f); break;
+				case 2: pen = gcnew Pen(Color::Blue, 3.0f); break;
+				case 3: pen = gcnew Pen(Color::Black, 3.0f); break;
+				case 4: pen = gcnew Pen(Color::Brown, 3.0f); break;
+				case 5: pen = gcnew Pen(Color::Orange, 3.0f); break;
+				case 6: pen = gcnew Pen(Color::Gray, 3.0f); break;
+				default: pen = gcnew Pen(Color::Blue, 3.0f);
+				}//switch
+				temp_x = int(instances2[i].x1 ) + pictureBox1->Width / 2;
+				temp_y = pictureBox1->Height / 2 - int(instances2[i].x2 );
+				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x - 5, temp_y, temp_x + 5, temp_y);
+				pictureBox1->CreateGraphics()->DrawLine(pen, temp_x, temp_y - 5, temp_x, temp_y + 5);
+			}
+		
+		delete[] x;
+		delete[] mean;
+		delete[] standartDev;
 
 	}
+	private: System::Void showErrorToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		
+		
+		if (chart1->Visible) {
+			chart1->Visible = false;
+		}
+		else {
+			chart1->Visible = true;
+		}
+		
+	}
+	private: System::Void continueLearningToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		numericUpDown2->Enabled = true;
+		button1->Enabled = true;
+		pictureBox1->Refresh();
+		chart1->Series->Clear();
 
+		System::Windows::Forms::DataVisualization::Charting::Series^ yeniSeri = gcnew System::Windows::Forms::DataVisualization::Charting::Series();
+		yeniSeri->Name = "Series1";
+		chart1->Series->Add(yeniSeri);
+		yeniSeri->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
 
+		int temp_x, temp_y;
+		for (int i = 0; i < constTotalInstanceSize; i++) {
+			switch (int(instances[i].id)) {
+			case (-1): pen = gcnew Pen(Color::Red, 3.0f); break;
+			case 1: pen = gcnew Pen(Color::Blue, 3.0f); break;
+			case 2: pen = gcnew Pen(Color::Blue, 3.0f); break;
+			case 3: pen = gcnew Pen(Color::Black, 3.0f); break;
+			case 4: pen = gcnew Pen(Color::Brown, 3.0f); break;
+			case 5: pen = gcnew Pen(Color::Orange, 3.0f); break;
+			case 6: pen = gcnew Pen(Color::Gray, 3.0f); break;
+			default: pen = gcnew Pen(Color::Green, 3.0f);
+			}//switch
+			temp_x = int(instances2[i].x1) + pictureBox1->Width / 2;
+			temp_y = pictureBox1->Height / 2 - int(instances2[i].x2);
+			pictureBox1->CreateGraphics()->DrawLine(pen, temp_x - 5, temp_y, temp_x + 5, temp_y);
+			pictureBox1->CreateGraphics()->DrawLine(pen, temp_x, temp_y - 5, temp_x, temp_y + 5);
+		}
+		instances->Clear();
 
+		for (int i = 0; i < constTotalInstanceSize; i++) {
+			instances->Add(instances2[i]);
+		}
+	}
+	private: System::Void checkBox1_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
 
+		if (checkBox1->Checked) {
+			momentum = true;
+		}
+		else {
+			momentum = false;
+		}
+	}
+	private: System::Void readWeightToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		
+	}
+	private: System::Void readInstancesToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		
+	}
 };
 }
 

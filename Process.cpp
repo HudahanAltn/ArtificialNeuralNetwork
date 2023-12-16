@@ -11,51 +11,38 @@ int YPoint2(int x,int i,int dim, double* weight, int multiplier = 1) {
 	return (int)((double)(-1 * (double)multiplier * weight[i* dim + 2] - weight[i * dim] * x) / (double)(weight[i* dim +1]));
 }
 
-float* init_array_random(int len) {
-	float* arr = new float[len];
-	for (int i = 0; i < len; i++)
-		arr[i] = ((float)rand() / RAND_MAX) - 0.5f;
-	return arr;
-}
+int MultiLayer_Test_Forward(float* x, double* weightMiddle, float* biasMiddle, double* outWeights, float* outBias, int inputDim, int middleNeuronNumber)
+{
+int index_Max = 0;
 
-int Test_Forward(float* x, double* weight, float* bias, int num_Class, int inputDim) {
-	int i, j, index_Max;
-	if (num_Class > 2) {
-		int tempInputDim = 3;
-		float* output = new float[num_Class];
-		// Calculation of the output layer input
-		for (i = 0; i < num_Class; i++) {
-			output[i] = 0.0f;
-			output[i] += weight[i * tempInputDim + 0] * x[0];
-			output[i] += weight[i * tempInputDim + 1] * x[1];
-			output[i] += -1*bias[i];
+	// Giriþ katmaný Feedforward
+	float* middleLayerOutput = new float[middleNeuronNumber];
+	for (int i = 0; i < middleNeuronNumber; i++) {
+		middleLayerOutput[i] = 0.0f;
+
+		for (int j = 0; j < (inputDim-1); j++) {
+			middleLayerOutput[i] += weightMiddle[i * inputDim+j] * x[j];
 		}
-		for (i = 0; i < num_Class; i++)
-			output[i] = tanh(output[i]);
+		middleLayerOutput[i] += biasMiddle[i];
+		middleLayerOutput[i] = tanh(middleLayerOutput[i]);
+	}
 
-		float temp = output[0];
+	// Çýkýþ katmaný Feedforward
+	float output = 0.0f;
+	for (int j = 0; j < middleNeuronNumber; j++) {
+		output += outWeights[j] * middleLayerOutput[j];
+	}
+	output += outBias[0];
+	output = tanh(output);
+
+	if (output > 0.0f) {
 		index_Max = 0;
-		for (i = 1; i < num_Class; i++)
-			if (temp < output[i]) {
-				temp = output[i];
-				index_Max = i;
-			}
-
-		delete[] output;
 	}
 	else {
-		float output = 0.0f;
-		for (j = 0; j < inputDim; j++) {
-			output += weight[j] * x[j];
-		}
-		output += bias[0];//bias aslýnda weight[2]
-		output = tanh(output);
-		if (output > 0.0f) {
-			index_Max = 0;
-		}else{
-			index_Max = 1;
-		}
+		index_Max = 1;
 	}
-	return index_Max;
 
-}//
+	delete[] middleLayerOutput;
+
+	return index_Max;
+}

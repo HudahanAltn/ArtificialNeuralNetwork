@@ -83,30 +83,6 @@ Instance batchNormalization(Instance instance,double mean_X,double standartDevit
 
 }
 
-void Z_Score(float* x, int Size, int dim, float* mean, float* std) {
-
-	float* Total = new float[dim];
-
-	int i, j;
-	for (i = 0; i < dim; i++) {
-		mean[i] = std[i] = Total[i] = 0.0;
-	}
-	for (i = 0; i < Size; i++)
-		for (j = 0; j < dim; j++)
-			Total[j] += x[i * dim + j];
-	for (i = 0; i < dim; i++)
-		mean[i] = Total[i] / float(Size);
-
-	for (i = 0; i < Size; i++)
-		for (j = 0; j < dim; j++)
-			std[j] += ((x[i * dim + j] - mean[j]) * (x[i * dim + j] - mean[j]));
-
-	for (j = 0; j < dim; j++)
-		std[j] = sqrt(std[j] / float(Size));
-
-	delete[] Total;
-
-}
 
 Instance Normalization(Instance instance) {
 
